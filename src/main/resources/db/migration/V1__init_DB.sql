@@ -9,17 +9,9 @@ CREATE TABLE member
     login         TEXT NOT NULL UNIQUE,
     password      TEXT NOT NULL,
     birthday      DATE,
+    role          ROLE NOT NULL    DEFAULT 'USER',
     create_date   DATE NOT NULL    DEFAULT CURRENT_DATE,
     modified_date DATE NOT NULL    DEFAULT CURRENT_DATE
-);
-
-CREATE TABLE member_role
-(
-    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    member_id     UUID REFERENCES member,
-    role          ROLE NOT NULL    DEFAULT USER::role,
-    create_date   DATE             DEFAULT CURRENT_DATE,
-    modified_date DATE             DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE post
@@ -40,7 +32,8 @@ CREATE TABLE img
     modified_date DATE  NOT NULL   DEFAULT CURRENT_DATE
 );
 
-ALTER TABLE member ADD COLUMN avatar UUID REFERENCES img;
+ALTER TABLE member
+    ADD COLUMN avatar UUID REFERENCES img;
 
 CREATE TABLE comment
 (

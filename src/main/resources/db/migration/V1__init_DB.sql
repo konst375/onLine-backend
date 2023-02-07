@@ -6,7 +6,7 @@ CREATE TABLE member
     alias         TEXT,
     name          TEXT,
     surname       TEXT,
-    login         TEXT NOT NULL UNIQUE,
+    email         TEXT NOT NULL UNIQUE,
     password      TEXT NOT NULL,
     birthday      DATE,
     role          ROLE NOT NULL    DEFAULT 'USER',

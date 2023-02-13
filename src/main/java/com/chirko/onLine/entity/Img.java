@@ -26,8 +26,8 @@ public class Img {
     private File img;
     @Column(name = "post_id")
     private UUID postId;
-    @Column(name = "create_date", columnDefinition = "DATE", nullable = false)
-    private LocalDate createDate;
+    @Column(name = "created_date", columnDefinition = "DATE", nullable = false)
+    private LocalDate createdDate;
     @Column(name = "modified_date", columnDefinition = "DATE", nullable = false)
     private LocalDate modifiedDate;
     @OneToOne(mappedBy = "avatar")

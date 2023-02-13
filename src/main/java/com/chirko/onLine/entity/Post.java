@@ -25,8 +25,8 @@ public class Post {
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User userId;
     private String text;
-    @Column(name = "create_date", nullable = false)
-    private LocalDate createDate;
+    @Column(name = "created_date", nullable = false)
+    private LocalDate createdDate;
     @Column(name = "modified_date", nullable = false)
     private LocalDate modifiedDate;
 }

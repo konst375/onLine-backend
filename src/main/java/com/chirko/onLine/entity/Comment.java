@@ -5,7 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
@@ -24,9 +26,12 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User userId;
+    @Column(nullable = false)
     private String text;
-    @Column(name = "create_date", nullable = false)
-    private LocalDate createDate;
+    @CreationTimestamp
+    @Column(name = "created_date", nullable = false)
+    private LocalDate createdDate;
+    @UpdateTimestamp
     @Column(name = "modified_date", nullable = false)
     private LocalDate modifiedDate;
 }

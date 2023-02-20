@@ -1,4 +1,4 @@
-package com.chirko.onLine.service.utils;
+package com.chirko.onLine.common.authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

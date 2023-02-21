@@ -1,5 +1,8 @@
-package com.chirko.onLine.common.registration.event;
+package com.chirko.onLine.common.registration;
 
+import com.chirko.onLine.common.registration.event.AbstractRegistrationEvent;
+import com.chirko.onLine.common.registration.event.OnRegistrationCompleteEvent;
+import com.chirko.onLine.common.registration.event.OnResendingConfirmationLinkEvent;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.service.TokenService;
 import lombok.NonNull;
@@ -12,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
+public class RegistrationListener implements ApplicationListener<AbstractRegistrationEvent> {
 
     private final TokenService tokenService;
     private final JavaMailSender mailSender;
@@ -20,11 +23,23 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     private String username;
 
     @Override
-    public void onApplicationEvent(@NonNull OnRegistrationCompleteEvent event) {
-        this.confirmRegistration(event);
+    public void onApplicationEvent(@NonNull AbstractRegistrationEvent event) {
+        if (event instanceof OnRegistrationCompleteEvent) {
+            this.confirmRegistration((OnRegistrationCompleteEvent) event);
+        } else if (event instanceof OnResendingConfirmationLinkEvent) {
+            this.resendRegistrationToken((OnResendingConfirmationLinkEvent) event);
+        }
     }
 
     private void confirmRegistration(OnRegistrationCompleteEvent event) {
+        sendConfirmationLink(event);
+    }
+
+    private void resendRegistrationToken(OnResendingConfirmationLinkEvent event) {
+        sendConfirmationLink(event);
+    }
+
+    private void sendConfirmationLink(AbstractRegistrationEvent event) {
         User user = event.getUser();
         String token = tokenService.generateAccessToken(user);
 

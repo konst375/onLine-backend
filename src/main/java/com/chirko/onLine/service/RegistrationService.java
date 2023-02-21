@@ -2,6 +2,7 @@ package com.chirko.onLine.service;
 
 import com.chirko.onLine.common.authentication.AuthenticationResponse;
 import com.chirko.onLine.common.registration.event.OnRegistrationCompleteEvent;
+import com.chirko.onLine.common.registration.event.OnResendingConfirmationLinkEvent;
 import com.chirko.onLine.dto.RegisterRequestDto;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.entity.enums.Role;
@@ -49,12 +50,16 @@ public class RegistrationService {
         applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
     }
 
+    public void resendRegistrationToken(String expiredToken) throws UserEmailNotFoundException {
+        User user = extractUserFromToken(expiredToken);
+        applicationEventPublisher.publishEvent(new OnResendingConfirmationLinkEvent(user));
+    }
+
     @Transactional
     public AuthenticationResponse confirmRegistration(
             String token
     ) throws UserEmailNotFoundException, ExpiredJwtException {
-        User user = userRepo.findByEmail(tokenService.extractEmail(token))
-                .orElseThrow(() -> new UserEmailNotFoundException("User with this email does not exist"));
+        User user = extractUserFromToken(token);
 
         if (!tokenService.isTokenValid(token, user)) {
             throw new ExpiredJwtException(
@@ -70,5 +75,10 @@ public class RegistrationService {
         return AuthenticationResponse.builder()
                 .jwtToken(token)
                 .build();
+    }
+
+    private User extractUserFromToken(String token) throws UserEmailNotFoundException {
+        return userRepo.findByEmail(tokenService.extractEmail(token))
+                .orElseThrow(() -> new UserEmailNotFoundException("User with this email does not exist"));
     }
 }

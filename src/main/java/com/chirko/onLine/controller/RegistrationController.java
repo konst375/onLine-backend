@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class RegistrationController {
 
     private final RegistrationService registrationService;
+    private static final String DEFAULT_CONFIRMATION_MESSAGE = "Confirm your email by following the link we sent you.";
 
     @PostMapping("/register")
     public ResponseEntity<String> register(
@@ -25,7 +26,7 @@ public class RegistrationController {
 
         registrationService.register(registerRequestDto);
 
-        return ResponseEntity.ok("Confirm your email by following the link we sent you.");
+        return ResponseEntity.ok(DEFAULT_CONFIRMATION_MESSAGE);
     }
 
     @GetMapping("/registrationConfirm")
@@ -34,5 +35,15 @@ public class RegistrationController {
     ) throws UserEmailNotFoundException, ExpiredJwtException {
 
         return ResponseEntity.ok(registrationService.confirmRegistration(token));
+    }
+
+    @GetMapping("/resendRegistrationToken")
+    public ResponseEntity<String> resendRegistrationToken(
+            @RequestParam("token") String expiredToken
+    ) throws UserEmailNotFoundException {
+
+        registrationService.resendRegistrationToken(expiredToken);
+
+        return ResponseEntity.ok(DEFAULT_CONFIRMATION_MESSAGE);
     }
 }

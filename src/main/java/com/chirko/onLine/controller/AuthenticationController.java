@@ -1,9 +1,9 @@
 package com.chirko.onLine.controller;
 
-import com.chirko.onLine.common.authentication.AuthenticationResponse;
-import com.chirko.onLine.dto.AuthenticationRequestDto;
+import com.chirko.onLine.service.common.AuthenticationResponse;
+import com.chirko.onLine.service.authentication.dto.AuthenticationRequestDto;
 import com.chirko.onLine.exceptions.UserEmailNotFoundException;
-import com.chirko.onLine.service.AuthenticationService;
+import com.chirko.onLine.service.authentication.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

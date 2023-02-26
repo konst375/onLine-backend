@@ -1,5 +1,6 @@
-package com.chirko.onLine.service;
+package com.chirko.onLine.service.token;
 
+import com.chirko.onLine.exceptions.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,21 +21,33 @@ import java.util.function.Function;
 public class TokenService {
 
     private static final String SECRET_KEY = "67556A586E3272357538782F413F4428472B4B6250655368566D597033733676";
+    private static final int EXPIRATION_DATE = 1000 * 60 * 5;//5 minutes
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
     }
 
     public String generateAccessToken(UserDetails userDetails) {
         return generateAccessToken(new HashMap<>(), userDetails);
     }
 
-    public String generateAccessToken(
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractEmail(token); //based on userEmail
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    public void checkTokenExpirationDate(String token) throws TokenExpiredException {
+        if (isTokenExpired(token)) {
+            throw new TokenExpiredException();
+        }
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private String generateAccessToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
@@ -43,25 +56,20 @@ public class TokenService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_DATE))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractEmail(token); //based on userEmail
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    public Date extractExpiration(String token) {
+    private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()

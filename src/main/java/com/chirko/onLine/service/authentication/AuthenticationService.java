@@ -1,7 +1,8 @@
-package com.chirko.onLine.service;
+package com.chirko.onLine.service.authentication;
 
-import com.chirko.onLine.common.authentication.AuthenticationResponse;
-import com.chirko.onLine.dto.AuthenticationRequestDto;
+import com.chirko.onLine.service.authentication.dto.AuthenticationRequestDto;
+import com.chirko.onLine.service.common.AuthenticationResponse;
+import com.chirko.onLine.service.token.TokenService;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.exceptions.UserEmailNotFoundException;
 import com.chirko.onLine.repo.UserRepo;
@@ -26,11 +27,12 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
+
         User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserEmailNotFoundException("No user with this email was found"));
-        String jwtToken = tokenService.generateAccessToken(user);
+                .orElseThrow(UserEmailNotFoundException::new);
+
         return AuthenticationResponse.builder()
-                .jwtToken(jwtToken)
+                .jwtToken(tokenService.generateAccessToken(user))
                 .build();
     }
 }

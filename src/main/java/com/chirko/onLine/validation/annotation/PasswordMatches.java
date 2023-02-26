@@ -1,6 +1,6 @@
 package com.chirko.onLine.validation.annotation;
 
-import com.chirko.onLine.validation.PasswordMatchesValidator;
+import com.chirko.onLine.validation.validator.PasswordMatchesValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -12,8 +12,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface PasswordMatches {
     String message() default "Passwords do not match";
-
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }

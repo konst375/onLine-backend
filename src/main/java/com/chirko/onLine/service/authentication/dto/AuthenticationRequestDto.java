@@ -1,4 +1,4 @@
-package com.chirko.onLine.dto;
+package com.chirko.onLine.service.authentication.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

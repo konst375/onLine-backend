@@ -1,11 +1,11 @@
 package com.chirko.onLine.controller;
 
-import com.chirko.onLine.common.authentication.AuthenticationResponse;
-import com.chirko.onLine.dto.RegisterRequestDto;
+import com.chirko.onLine.exceptions.TokenExpiredException;
 import com.chirko.onLine.exceptions.UserAlreadyExitsException;
 import com.chirko.onLine.exceptions.UserEmailNotFoundException;
-import com.chirko.onLine.service.RegistrationService;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.chirko.onLine.service.common.AuthenticationResponse;
+import com.chirko.onLine.service.registration.RegistrationService;
+import com.chirko.onLine.service.registration.dto.RegisterRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class RegistrationController {
     @GetMapping("/registrationConfirm")
     public ResponseEntity<AuthenticationResponse> confirmRegistration(
             @RequestParam("token") String token
-    ) throws UserEmailNotFoundException, ExpiredJwtException {
+    ) throws UserEmailNotFoundException, TokenExpiredException {
 
         return ResponseEntity.ok(registrationService.confirmRegistration(token));
     }

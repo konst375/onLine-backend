@@ -1,6 +1,6 @@
-package com.chirko.onLine.common.authentication;
+package com.chirko.onLine.service.authentication;
 
-import com.chirko.onLine.service.TokenService;
+import com.chirko.onLine.service.token.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

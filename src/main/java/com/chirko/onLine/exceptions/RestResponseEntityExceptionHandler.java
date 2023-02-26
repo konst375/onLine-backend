@@ -36,7 +36,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     @ExceptionHandler(value = {ExpiredJwtException.class})
-    protected ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException ex) {
+    protected ResponseEntity<Object> handleTokenExpiredException(ExpiredJwtException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }

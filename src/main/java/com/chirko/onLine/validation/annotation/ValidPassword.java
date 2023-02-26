@@ -1,6 +1,6 @@
 package com.chirko.onLine.validation.annotation;
 
-import com.chirko.onLine.validation.validator.EmailValidator;
+import com.chirko.onLine.validation.validator.PasswordValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -13,10 +13,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = EmailValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Documented
-public @interface ValidEmail {
-    String message() default "Invalid email";
+public @interface ValidPassword {
+    String message() default "Set a strong password!";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

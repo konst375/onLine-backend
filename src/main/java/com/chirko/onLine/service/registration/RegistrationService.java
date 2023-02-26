@@ -1,22 +1,21 @@
-package com.chirko.onLine.service;
+package com.chirko.onLine.service.registration;
 
-import com.chirko.onLine.common.authentication.AuthenticationResponse;
-import com.chirko.onLine.common.registration.event.OnRegistrationCompleteEvent;
-import com.chirko.onLine.common.registration.event.OnResendingConfirmationLinkEvent;
-import com.chirko.onLine.dto.RegisterRequestDto;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.entity.enums.Role;
+import com.chirko.onLine.exceptions.TokenExpiredException;
 import com.chirko.onLine.exceptions.UserAlreadyExitsException;
 import com.chirko.onLine.exceptions.UserEmailNotFoundException;
 import com.chirko.onLine.repo.UserRepo;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.chirko.onLine.service.common.AuthenticationResponse;
+import com.chirko.onLine.service.registration.dto.RegisterRequestDto;
+import com.chirko.onLine.service.registration.event.OnResendingConfirmationLinkEvent;
+import com.chirko.onLine.service.registration.event.OnSuccessfulRegistrationEvent;
+import com.chirko.onLine.service.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class RegistrationService {
     ) throws UserAlreadyExitsException {
 
         if (userRepo.existsByEmail(registerRequest.getEmail())) {
-            throw new UserAlreadyExitsException("User with this email already exist");
+            throw new UserAlreadyExitsException();
         }
 
         User user = User.builder()
@@ -47,7 +46,7 @@ public class RegistrationService {
 
         userRepo.save(user);
 
-        applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
+        applicationEventPublisher.publishEvent(new OnSuccessfulRegistrationEvent(user));
     }
 
     public void resendRegistrationToken(String expiredToken) throws UserEmailNotFoundException {
@@ -58,27 +57,19 @@ public class RegistrationService {
     @Transactional
     public AuthenticationResponse confirmRegistration(
             String token
-    ) throws UserEmailNotFoundException, ExpiredJwtException {
+    ) throws UserEmailNotFoundException, TokenExpiredException {
+        tokenService.checkTokenExpirationDate(token);
+
         User user = extractUserFromToken(token);
-
-        if (!tokenService.isTokenValid(token, user)) {
-            throw new ExpiredJwtException(
-                    null,
-                    tokenService.extractAllClaims(token),
-                    String.format(
-                            "Error validating access token: Session has expired on %s. The current time is %s.",
-                            tokenService.extractExpiration(token), new Date()));
-        }
-
         user.setEnabled(true);
 
         return AuthenticationResponse.builder()
-                .jwtToken(token)
+                .jwtToken(tokenService.generateAccessToken(user))
                 .build();
     }
 
     private User extractUserFromToken(String token) throws UserEmailNotFoundException {
         return userRepo.findByEmail(tokenService.extractEmail(token))
-                .orElseThrow(() -> new UserEmailNotFoundException("User with this email does not exist"));
+                .orElseThrow(UserEmailNotFoundException::new);
     }
 }

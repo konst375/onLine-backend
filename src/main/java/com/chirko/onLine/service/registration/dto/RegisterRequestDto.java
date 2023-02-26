@@ -1,14 +1,12 @@
-package com.chirko.onLine.dto;
+package com.chirko.onLine.service.registration.dto;
 
 import com.chirko.onLine.entity.Img;
 import com.chirko.onLine.validation.annotation.PasswordMatches;
 import com.chirko.onLine.validation.annotation.ValidEmail;
+import com.chirko.onLine.validation.annotation.ValidPassword;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -26,6 +24,7 @@ public class RegisterRequestDto {
     private String email;
     @NotNull
     @NotBlank
+    @ValidPassword
     private String password;
     private String matchingPassword;
     private LocalDate birthday;

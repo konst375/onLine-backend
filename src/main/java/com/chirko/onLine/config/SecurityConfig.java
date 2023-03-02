@@ -1,6 +1,6 @@
 package com.chirko.onLine.config;
 
-import com.chirko.onLine.service.authentication.JwtAuthenticationFilter;
+import com.chirko.onLine.domain.authentication.service.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**", "/api/v1/registration/**", "/api/v1/user/resetPassword", "/api/v1/user/resetPasswordForm", "/api/v1/user/changePassword")
+                .requestMatchers("/api/v1/auth/**", "/api/v1/registration/**", "/api/v1/user/password/reset", "/api/v1/user/password/reset-form", "/api/v1/user/password/reset/save")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

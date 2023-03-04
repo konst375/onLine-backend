@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,10 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class AccessTokenService {
 
-    private static final String SECRET_KEY = "67556A586E3272357538782F413F4428472B4B6250655368566D597033733676";
-    private static final int EXPIRATION_DATE = 1000 * 60 * 5;//5 minutes
+    @Value("${jwt.access.token.secret}")
+    private String secretKey;
+
+    private final static int EXPIRATION_DATE = 300000;
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -71,7 +74,7 @@ public class AccessTokenService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

@@ -1,6 +1,6 @@
 package com.chirko.onLine.common.exception;
 
-import com.chirko.onLine.domain.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;

@@ -1,6 +1,6 @@
 package com.chirko.onLine.config;
 
-import com.chirko.onLine.domain.authentication.service.JwtAuthenticationFilter;
+import com.chirko.onLine.authentication.service.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

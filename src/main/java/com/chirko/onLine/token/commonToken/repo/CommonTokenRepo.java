@@ -1,6 +1,6 @@
 package com.chirko.onLine.token.commonToken.repo;
 
-import com.chirko.onLine.domain.user.entity.User;
+import com.chirko.onLine.user.entity.User;
 import com.chirko.onLine.token.commonToken.entity.CommonToken;
 import lombok.NonNull;
 import org.springframework.data.repository.CrudRepository;

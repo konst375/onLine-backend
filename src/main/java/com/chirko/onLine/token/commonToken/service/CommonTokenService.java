@@ -1,7 +1,7 @@
 package com.chirko.onLine.token.commonToken.service;
 
 import com.chirko.onLine.common.exception.UserEmailNotFoundException;
-import com.chirko.onLine.domain.user.entity.User;
+import com.chirko.onLine.user.entity.User;
 import com.chirko.onLine.token.commonToken.entity.CommonToken;
 import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
 import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;

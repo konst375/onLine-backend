@@ -1,6 +1,6 @@
 package com.chirko.onLine.common.event;
 
-import com.chirko.onLine.domain.user.entity.User;
+import com.chirko.onLine.user.entity.User;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

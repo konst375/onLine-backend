@@ -1,6 +1,6 @@
 package com.chirko.onLine.comment.entity;
 
-import com.chirko.onLine.domain.user.entity.User;
+import com.chirko.onLine.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

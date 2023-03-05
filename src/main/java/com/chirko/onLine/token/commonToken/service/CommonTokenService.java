@@ -1,12 +1,12 @@
 package com.chirko.onLine.token.commonToken.service;
 
-import com.chirko.onLine.common.exception.UserEmailNotFoundException;
-import com.chirko.onLine.user.entity.User;
 import com.chirko.onLine.token.commonToken.entity.CommonToken;
 import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
 import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
-import com.chirko.onLine.token.commonToken.exception.InvalidCommonToken;
+import com.chirko.onLine.token.commonToken.exception.InvalidCommonTokenException;
 import com.chirko.onLine.token.commonToken.repo.CommonTokenRepo;
+import com.chirko.onLine.user.entity.User;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +37,8 @@ public class CommonTokenService {
         return token;
     }
 
-    public void validateToken(String validatedToken) throws CommonTokenExpiredException, InvalidCommonToken {
-        CommonToken token = commonTokenRepo.findByToken(validatedToken).orElseThrow(InvalidCommonToken::new);
+    public void validateToken(String validatedToken) throws CommonTokenExpiredException, InvalidCommonTokenException {
+        CommonToken token = commonTokenRepo.findByToken(validatedToken).orElseThrow(InvalidCommonTokenException::new);
         checkTokenExpiration(token);
     }
 

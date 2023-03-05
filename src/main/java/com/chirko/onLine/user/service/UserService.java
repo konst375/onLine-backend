@@ -1,17 +1,17 @@
 package com.chirko.onLine.user.service;
 
-import com.chirko.onLine.user.dto.ResetUserPasswordDto;
-import com.chirko.onLine.user.event.OnPasswordResetRequestEvent;
-import com.chirko.onLine.user.event.OnSuccessfulPasswordResetEvent;
-import com.chirko.onLine.user.entity.User;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
-import com.chirko.onLine.token.commonToken.exception.InvalidCommonToken;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
-import com.chirko.onLine.common.exception.UserEmailNotFoundException;
-import com.chirko.onLine.user.repo.UserRepo;
 import com.chirko.onLine.common.dto.AuthenticationResponse;
 import com.chirko.onLine.token.accessToken.service.AccessTokenService;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
+import com.chirko.onLine.token.commonToken.exception.InvalidCommonTokenException;
 import com.chirko.onLine.token.commonToken.service.CommonTokenService;
+import com.chirko.onLine.user.dto.ResetUserPasswordDto;
+import com.chirko.onLine.user.entity.User;
+import com.chirko.onLine.user.event.OnPasswordResetRequestEvent;
+import com.chirko.onLine.user.event.OnSuccessfulPasswordResetEvent;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
+import com.chirko.onLine.user.repo.UserRepo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,7 +39,7 @@ public class UserService {
     @Transactional
     public AuthenticationResponse saveResetPassword(
             @Valid ResetUserPasswordDto resetUserPasswordDto
-    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonToken, CommonTokenForSuchUserNotFoundException {
+    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonTokenException, CommonTokenForSuchUserNotFoundException {
 
         String token = resetUserPasswordDto.getToken();
         commonTokenService.validateToken(token);
@@ -55,5 +55,19 @@ public class UserService {
         return AuthenticationResponse.builder()
                 .jwtToken(accessTokenService.generateAccessToken(user))
                 .build();
+    }
+
+    public User findUserByEmail(String email) throws UserEmailNotFoundException {
+        return userRepo.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
+    }
+
+    public boolean isOldPasswordValid(User user, String oldPassword) {
+        return user.getPassword().equals(passwordEncoder.encode(oldPassword));
+    }
+
+    @Transactional
+    public void updatePassword(String email, String password) throws UserEmailNotFoundException {
+        User userByEmail = findUserByEmail(email);
+        userByEmail.setPassword(passwordEncoder.encode(password));
     }
 }

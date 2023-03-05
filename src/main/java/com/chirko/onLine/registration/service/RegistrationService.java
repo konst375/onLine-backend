@@ -1,19 +1,19 @@
 package com.chirko.onLine.registration.service;
 
 import com.chirko.onLine.common.dto.AuthenticationResponse;
-import com.chirko.onLine.common.exception.UserEmailNotFoundException;
 import com.chirko.onLine.registration.dto.RegisterRequestDto;
 import com.chirko.onLine.registration.event.OnResendingConfirmationLinkEvent;
 import com.chirko.onLine.registration.event.OnSuccessfulRegistrationEvent;
 import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.token.accessToken.service.AccessTokenService;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
+import com.chirko.onLine.token.commonToken.exception.InvalidCommonTokenException;
+import com.chirko.onLine.token.commonToken.service.CommonTokenService;
 import com.chirko.onLine.user.entity.User;
 import com.chirko.onLine.user.entity.enums.Role;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import com.chirko.onLine.user.repo.UserRepo;
-import com.chirko.onLine.token.accessToken.service.AccessTokenService;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
-import com.chirko.onLine.token.commonToken.exception.InvalidCommonToken;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
-import com.chirko.onLine.token.commonToken.service.CommonTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,7 +66,7 @@ public class RegistrationService {
     @Transactional
     public AuthenticationResponse confirmRegistration(
             String token
-    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonToken, CommonTokenForSuchUserNotFoundException {
+    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonTokenException, CommonTokenForSuchUserNotFoundException {
         commonTokenService.validateToken(token);
 
         User user = extractUserFromToken(token);

@@ -4,7 +4,7 @@ import com.chirko.onLine.authentication.dto.AuthenticationRequestDto;
 import com.chirko.onLine.common.dto.AuthenticationResponse;
 import com.chirko.onLine.token.accessToken.service.AccessTokenService;
 import com.chirko.onLine.user.entity.User;
-import com.chirko.onLine.common.exception.UserEmailNotFoundException;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import com.chirko.onLine.user.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

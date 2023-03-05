@@ -2,6 +2,7 @@ package com.chirko.onLine.validation.validator;
 
 import com.chirko.onLine.registration.dto.RegisterRequestDto;
 import com.chirko.onLine.user.dto.ResetUserPasswordDto;
+import com.chirko.onLine.user.dto.UpdatePasswordDto;
 import com.chirko.onLine.validation.annotation.PasswordMatches;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -12,6 +13,8 @@ public class PasswordMatchesValidator implements ConstraintValidator<PasswordMat
         if (obj instanceof RegisterRequestDto request) {
             return request.getPassword().equals(request.getMatchingPassword());
         } else if (obj instanceof ResetUserPasswordDto request) {
+            return request.getPassword().equals(request.getMatchingPassword());
+        } else if (obj instanceof UpdatePasswordDto request) {
             return request.getPassword().equals(request.getMatchingPassword());
         }
         return false;

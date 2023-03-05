@@ -1,13 +1,13 @@
 package com.chirko.onLine.registration.controller;
 
-import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
-import com.chirko.onLine.token.commonToken.exception.InvalidCommonToken;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
-import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
-import com.chirko.onLine.common.exception.UserEmailNotFoundException;
 import com.chirko.onLine.common.dto.AuthenticationResponse;
-import com.chirko.onLine.registration.service.RegistrationService;
 import com.chirko.onLine.registration.dto.RegisterRequestDto;
+import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.registration.service.RegistrationService;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
+import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
+import com.chirko.onLine.token.commonToken.exception.InvalidCommonTokenException;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ public class RegistrationController {
     @GetMapping("/confirm")
     public ResponseEntity<AuthenticationResponse> confirmRegistration(
             @RequestParam("token") String token
-    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonToken, CommonTokenForSuchUserNotFoundException {
+    ) throws UserEmailNotFoundException, CommonTokenExpiredException, InvalidCommonTokenException, CommonTokenForSuchUserNotFoundException {
 
         AuthenticationResponse response = registrationService.confirmRegistration(token);
 

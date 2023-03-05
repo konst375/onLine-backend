@@ -1,6 +1,7 @@
-package com.chirko.onLine.common.exception;
+package com.chirko.onLine.common.handler;
 
 import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;

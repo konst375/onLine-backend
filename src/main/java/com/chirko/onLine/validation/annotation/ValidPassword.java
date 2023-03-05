@@ -1,6 +1,6 @@
 package com.chirko.onLine.validation.annotation;
 
-import com.chirko.onLine.validation.validator.PasswordValidator;
+import com.chirko.onLine.validation.validator.PasswordConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = PasswordConstraintValidator.class)
 @Documented
 public @interface ValidPassword {
     String message() default "Set a strong password!";

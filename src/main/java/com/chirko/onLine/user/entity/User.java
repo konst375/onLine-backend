@@ -1,10 +1,10 @@
 package com.chirko.onLine.user.entity;
 
 import com.chirko.onLine.comment.entity.Comment;
-import com.chirko.onLine.user.entity.enums.Role;
 import com.chirko.onLine.img.entity.Img;
 import com.chirko.onLine.post.entity.Post;
-import com.chirko.onLine.token.commonToken.entity.CommonToken;
+import com.chirko.onLine.secure.token.commonToken.entity.CommonToken;
+import com.chirko.onLine.user.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,6 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +25,6 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,32 +53,29 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ToString.Exclude
     private Role role;
 
     @CreationTimestamp
-    @Column(name = "created_date", nullable = false)
-    private LocalDate createdDate;
+    @Column(nullable = false)
+    private Timestamp createdDate;
 
     @UpdateTimestamp
-    @Column(name = "modified_date", nullable = false)
-    private LocalDate modifiedDate;
+    @Column(nullable = false)
+    private Timestamp modifiedDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "avatar", referencedColumnName = "id")
-    @ToString.Exclude
+    @Transient
     private Img avatar;
 
-    @OneToMany(mappedBy = "userId")
-    @ToString.Exclude
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private List<Img> photos;
+
+    @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "userId")
-    @ToString.Exclude
+    @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
     @OneToOne(mappedBy = "user")
-    @ToString.Exclude
     private CommonToken commonToken;
 
     @Override

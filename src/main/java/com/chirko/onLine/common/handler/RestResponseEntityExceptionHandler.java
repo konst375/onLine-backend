@@ -1,6 +1,10 @@
 package com.chirko.onLine.common.handler;
 
-import com.chirko.onLine.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.secure.registration.exception.UserAlreadyExitsException;
+import com.chirko.onLine.secure.token.commonToken.exception.CommonTokenExpiredException;
+import com.chirko.onLine.secure.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
+import com.chirko.onLine.secure.token.commonToken.exception.InvalidCommonTokenException;
+import com.chirko.onLine.user.exception.InvalidOldPasswordException;
 import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
@@ -37,8 +41,28 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(value = {InvalidOldPasswordException.class})
+    protected ResponseEntity<Object> handleUserEmailNotFoundException(InvalidOldPasswordException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(value = {ExpiredJwtException.class})
     protected ResponseEntity<Object> handleTokenExpiredException(ExpiredJwtException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = {CommonTokenExpiredException.class})
+    protected ResponseEntity<Object> handleTokenExpiredException(CommonTokenExpiredException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {CommonTokenForSuchUserNotFoundException.class})
+    protected ResponseEntity<Object> handleTokenExpiredException(CommonTokenForSuchUserNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {InvalidCommonTokenException.class})
+    protected ResponseEntity<Object> handleTokenExpiredException(InvalidCommonTokenException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

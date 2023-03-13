@@ -7,8 +7,8 @@ CREATE TABLE member
     password      TEXT NOT NULL,
     birthday      DATE,
     role          TEXT NOT NULL,
-    created_date  DATE NOT NULL,
-    modified_date DATE NOT NULL
+    created_date  TIMESTAMP NOT NULL,
+    modified_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE post
@@ -16,8 +16,8 @@ CREATE TABLE post
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     member_id     UUID REFERENCES member,
     text          TEXT,
-    created_date  DATE NOT NULL,
-    modified_date DATE NOT NULL
+    created_date  TIMESTAMP NOT NULL,
+    modified_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE img
@@ -25,8 +25,9 @@ CREATE TABLE img
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     img           BYTEA NOT NULL,
     post_id       UUID REFERENCES post,
-    created_date  DATE  NOT NULL,
-    modified_date DATE  NOT NULL
+    member_id     UUID REFERENCES member,
+    created_date  TIMESTAMP  NOT NULL,
+    modified_date TIMESTAMP  NOT NULL
 );
 
 ALTER TABLE member
@@ -37,6 +38,6 @@ CREATE TABLE comment
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     member_id     UUID REFERENCES member,
     text          TEXT NOT NULL,
-    created_date  DATE NOT NULL,
-    modified_date DATE NOT NULL
+    created_date  TIMESTAMP NOT NULL,
+    modified_date TIMESTAMP NOT NULL
 );

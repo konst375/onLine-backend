@@ -1,14 +1,9 @@
-package com.chirko.onLine.comment.entity;
+package com.chirko.onLine.secure.token.commonToken.entity;
 
 import com.chirko.onLine.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.sql.Timestamp;
@@ -17,22 +12,26 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+@Table(name = "common_token")
+public class CommonToken {
+
+    @Transient
+    public static final long EXPIRATION = 300000;//5 min
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
-    @ManyToOne
+
+    private String token;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
-    @Column(nullable = false)
-    private String text;
-    @CreationTimestamp
-    @Column(nullable = false)
-    private Timestamp createdDate;
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Timestamp modifiedDate;
+
+    private Timestamp expireTimestamp;
 }

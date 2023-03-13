@@ -6,7 +6,7 @@ AS
 $$
 BEGIN
     UPDATE comment
-    SET modified_date = CURRENT_DATE
+    SET modified_date = now()::TIMESTAMP
     WHERE id = NEW.id;
 END;
 $$;
@@ -25,7 +25,7 @@ AS
 $$
 BEGIN
     UPDATE img
-    SET modified_date = CURRENT_DATE
+    SET modified_date = now()::TIMESTAMP
     WHERE id = NEW.id;
 END;
 $$;
@@ -44,7 +44,7 @@ AS
 $$
 BEGIN
     UPDATE member
-    SET modified_date = CURRENT_DATE
+    SET modified_date = now()::TIMESTAMP
     WHERE id = NEW.id;
 END;
 $$;
@@ -63,7 +63,7 @@ AS
 $$
 BEGIN
     UPDATE post
-    SET modified_date = CURRENT_DATE
+    SET modified_date = now()::TIMESTAMP
     WHERE id = NEW.id;
 END;
 $$;

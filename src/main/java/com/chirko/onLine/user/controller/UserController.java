@@ -1,23 +1,23 @@
 package com.chirko.onLine.user.controller;
 
 import com.chirko.onLine.common.dto.AuthenticationResponse;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenExpiredException;
-import com.chirko.onLine.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
-import com.chirko.onLine.token.commonToken.exception.InvalidCommonTokenException;
-import com.chirko.onLine.token.commonToken.service.CommonTokenService;
+import com.chirko.onLine.secure.token.commonToken.exception.CommonTokenExpiredException;
+import com.chirko.onLine.secure.token.commonToken.exception.CommonTokenForSuchUserNotFoundException;
+import com.chirko.onLine.secure.token.commonToken.exception.InvalidCommonTokenException;
+import com.chirko.onLine.secure.token.commonToken.service.CommonTokenService;
 import com.chirko.onLine.user.dto.OldPasswordDto;
 import com.chirko.onLine.user.dto.ResetUserPasswordDto;
 import com.chirko.onLine.user.dto.UpdatePasswordDto;
-import com.chirko.onLine.user.entity.User;
 import com.chirko.onLine.user.exception.InvalidOldPasswordException;
 import com.chirko.onLine.user.exception.UserEmailNotFoundException;
 import com.chirko.onLine.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,9 +40,9 @@ public class UserController {
     public ResponseEntity<AuthenticationResponse> saveResetPassword(
             @RequestBody @Valid ResetUserPasswordDto resetUserPasswordDto
     ) throws CommonTokenExpiredException,
-             InvalidCommonTokenException,
-             UserEmailNotFoundException,
-             CommonTokenForSuchUserNotFoundException {
+            InvalidCommonTokenException,
+            UserEmailNotFoundException,
+            CommonTokenForSuchUserNotFoundException {
 
         AuthenticationResponse response = userService.saveResetPassword(resetUserPasswordDto);
 
@@ -60,14 +60,12 @@ public class UserController {
     }
 
     @PostMapping("/password/update-form")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'USER')")
-    public  ResponseEntity<String> getUpdatePasswordForm(
-            @RequestBody OldPasswordDto oldPasswordDto
+    public ResponseEntity<String> getUpdatePasswordForm(
+            @RequestBody OldPasswordDto oldPasswordDto,
+            Principal principal
     ) throws UserEmailNotFoundException, InvalidOldPasswordException {
 
-        User user = userService.findUserByEmail(getAuthenticatedUserEmail());
-
-        if (userService.isOldPasswordValid(user, oldPasswordDto.getOldPassword())) {
+        if (userService.isOldPasswordValid(principal.getName(), oldPasswordDto.getOldPassword())) {
             throw new InvalidOldPasswordException();
         }
 
@@ -75,17 +73,24 @@ public class UserController {
     }
 
     @PostMapping("/password/update")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'USER')")
     public ResponseEntity<String> updatePassword(
-            @RequestBody @Valid UpdatePasswordDto updatePasswordDto
+            @RequestBody @Valid UpdatePasswordDto updatePasswordDto,
+            Principal principal
     ) throws UserEmailNotFoundException {
 
-        userService.updatePassword(getAuthenticatedUserEmail(), updatePasswordDto.getPassword());
+        userService.updatePassword(principal.getName(), updatePasswordDto.getPassword());
 
         return ResponseEntity.ok("Password successful updated");
     }
 
-    private String getAuthenticatedUserEmail() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+    @PostMapping("/avatar/update")
+    public ResponseEntity<String> updateAvatar(
+            @RequestParam("image") MultipartFile avatar,
+            Principal principal
+    ) throws UserEmailNotFoundException {
+
+        userService.updateAvatar(avatar, principal.getName());
+
+        return ResponseEntity.ok("Avatar updated");
     }
 }

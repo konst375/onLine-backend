@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
@@ -24,10 +24,10 @@ public class Post {
     private UUID id;
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id")
-    private User userId;
+    private User user;
     private String text;
-    @Column(name = "created_date", nullable = false)
-    private LocalDate createdDate;
-    @Column(name = "modified_date", nullable = false)
-    private LocalDate modifiedDate;
+    @Column(nullable = false)
+    private Timestamp createdDate;
+    @Column(nullable = false)
+    private Timestamp modifiedDate;
 }

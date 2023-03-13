@@ -1,6 +1,6 @@
 package com.chirko.onLine.validation.validator;
 
-import com.chirko.onLine.registration.dto.RegisterRequestDto;
+import com.chirko.onLine.secure.registration.dto.RegisterRequestDto;
 import com.chirko.onLine.user.dto.ResetUserPasswordDto;
 import com.chirko.onLine.user.dto.UpdatePasswordDto;
 import com.chirko.onLine.validation.annotation.PasswordMatches;

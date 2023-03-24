@@ -1,8 +1,8 @@
 package com.chirko.onLine.validation.validator;
 
-import com.chirko.onLine.secure.registration.dto.RegisterRequestDto;
-import com.chirko.onLine.user.dto.ResetUserPasswordDto;
-import com.chirko.onLine.user.dto.UpdatePasswordDto;
+import com.chirko.onLine.dto.request.RegisterRequestDto;
+import com.chirko.onLine.dto.request.ResetUserPasswordDto;
+import com.chirko.onLine.dto.request.UpdatePasswordDto;
 import com.chirko.onLine.validation.annotation.PasswordMatches;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

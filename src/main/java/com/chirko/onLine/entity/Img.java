@@ -1,28 +1,19 @@
 package com.chirko.onLine.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.type.SqlTypes;
-
-import java.sql.Timestamp;
-import java.util.UUID;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Getter
-@Setter
-@Builder
+@Data
+@SuperBuilder
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Img {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
-    private UUID id;
-
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+public class Img extends AbstractEntity {
     @Column(nullable = false, columnDefinition = "BYTEA")
     private byte[] img;
 
@@ -36,12 +27,4 @@ public class Img {
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
-
-    @CreationTimestamp
-    @Column(nullable = false)
-    private Timestamp createdDate;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Timestamp modifiedDate;
 }

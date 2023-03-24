@@ -40,7 +40,7 @@ public class PostService {
                             throw new RuntimeException(ex.getMessage());
                         }
                     })
-                    .map(bytes -> Img.builder()
+                    .map(bytes -> (Img) Img.builder()
                             .post(createdPost)
                             .img(bytes)
                             .build())

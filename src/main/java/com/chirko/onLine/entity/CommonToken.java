@@ -9,14 +9,12 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "common_token")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CommonToken {
-
     @Transient
     public static final long EXPIRATION = 300000;//5 min
 
@@ -28,9 +26,9 @@ public class CommonToken {
 
     private String token;
 
+    private Timestamp expireTimestamp;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
-
-    private Timestamp expireTimestamp;
 }

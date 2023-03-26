@@ -6,7 +6,6 @@ import org.springframework.mail.SimpleMailMessage;
 
 @Getter
 public class OnResendingConfirmationLinkEvent extends AbstractEvent {
-
     private final String token;
 
     public OnResendingConfirmationLinkEvent(User source, String token) {

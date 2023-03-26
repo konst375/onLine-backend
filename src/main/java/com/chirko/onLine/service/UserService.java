@@ -5,12 +5,13 @@ import com.chirko.onLine.dto.response.AuthenticationResponseDto;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.event.OnPasswordResetRequestEvent;
 import com.chirko.onLine.event.OnSuccessfulPasswordResetEvent;
-import com.chirko.onLine.exception.PostNotFoundException;
-import com.chirko.onLine.exception.UserEmailNotFoundException;
+import com.chirko.onLine.exception.ErrorCause;
+import com.chirko.onLine.exception.OnLineException;
 import com.chirko.onLine.repo.UserRepo;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +29,10 @@ public class UserService {
     private final CommonTokenService commonTokenService;
     private final ImgService imgService;
 
-    public void resetPassword(String email) throws UserEmailNotFoundException {
-        User user = userRepo.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
+    public void resetPassword(String email) {
+        User user = userRepo.findByEmail(email).orElseThrow(() ->
+                new OnLineException("User with this email does not exist, email: " + email, ErrorCause.USER_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
 
         String token = commonTokenService.createSaveAndGetCommonTokenForUser(user);
 
@@ -37,10 +40,7 @@ public class UserService {
     }
 
     @Transactional
-    public AuthenticationResponseDto saveResetPassword(
-            @Valid ResetUserPasswordDto resetUserPasswordDto
-    ) throws Exception {
-
+    public AuthenticationResponseDto saveResetPassword(@Valid ResetUserPasswordDto resetUserPasswordDto) {
         String token = resetUserPasswordDto.getToken();
         commonTokenService.validateToken(token);
 
@@ -57,24 +57,27 @@ public class UserService {
                 .build();
     }
 
-    public boolean isOldPasswordValid(String email, String oldPassword) throws UserEmailNotFoundException {
+    public boolean isOldPasswordValid(String email, String oldPassword) {
         return findUserByEmail(email).getPassword().equals(passwordEncoder.encode(oldPassword));
     }
 
     @Transactional
-    public void updatePassword(String email, String password) throws UserEmailNotFoundException {
+    public void updatePassword(String email, String password) {
         findUserByEmail(email).setPassword(passwordEncoder.encode(password));
     }
 
-    public void updateAvatar(MultipartFile avatar, String email) throws UserEmailNotFoundException {
+    public void updateAvatar(MultipartFile avatar, String email) {
         imgService.updateAvatarForUser(avatar, findUserByEmail(email));
     }
 
-    public User findUserByEmail(String email) throws UserEmailNotFoundException {
-        return userRepo.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
+    public User findUserByEmail(String email) {
+        return userRepo.findByEmail(email).orElseThrow(() ->
+                new OnLineException("User with this email does not exist, email: " + email,
+                        ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
-    public User findUserAndFetchImagedEagerlyByPost(UUID postId) throws PostNotFoundException {
-        return userRepo.findUserAndFetchAvatarEagerlyByPostId(postId).orElseThrow(PostNotFoundException::new);
+    public User findUserAndFetchImagesEagerlyByPost(UUID postId) {
+        return userRepo.findUserAndFetchAvatarEagerlyByPostId(postId).orElseThrow(() ->
+                new OnLineException("User does not exist", ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 }

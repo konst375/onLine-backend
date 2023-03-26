@@ -1,0 +1,12 @@
+package com.chirko.onLine.exception;
+
+public enum ErrorCause {
+    ACCESS_DENIED,
+    COMMON_TOKEN_EXPIRED,
+    COMMON_TOKEN_NOT_FOUND,
+    COMMON_TOKEN_INVALID,
+    OLD_PASSWORD_INVALID,
+    POST_NOT_FOUND,
+    USER_ALREADY_EXIST,
+    USER_NOT_FOUND
+}

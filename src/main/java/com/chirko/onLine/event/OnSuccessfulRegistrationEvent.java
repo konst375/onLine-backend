@@ -7,6 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 @Getter
 public class OnSuccessfulRegistrationEvent extends AbstractEvent {
     private final String token;
+
     public OnSuccessfulRegistrationEvent(User source, String token) {
         super(source);
         this.token = token;

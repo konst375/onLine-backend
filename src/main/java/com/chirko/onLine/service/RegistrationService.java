@@ -6,11 +6,12 @@ import com.chirko.onLine.entity.Img;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.event.OnResendingConfirmationLinkEvent;
 import com.chirko.onLine.event.OnSuccessfulRegistrationEvent;
-import com.chirko.onLine.exception.UserAlreadyExitsException;
-import com.chirko.onLine.exception.UserEmailNotFoundException;
+import com.chirko.onLine.exception.ErrorCause;
+import com.chirko.onLine.exception.OnLineException;
 import com.chirko.onLine.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +29,10 @@ public class RegistrationService {
     private final ImgService imgService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public void register(RegisterRequestDto registerRequestDto) throws UserAlreadyExitsException {
-
+    public void register(RegisterRequestDto registerRequestDto) {
         if (userRepo.existsByEmail(registerRequestDto.getEmail())) {
-            throw new UserAlreadyExitsException();
+            throw new OnLineException("User with this email already exist, email: " + registerRequestDto.getEmail(),
+                    ErrorCause.USER_ALREADY_EXIST, HttpStatus.CONFLICT);
         }
 
         User user = User.builder()
@@ -53,7 +54,7 @@ public class RegistrationService {
         applicationEventPublisher.publishEvent(new OnSuccessfulRegistrationEvent(user, token));
     }
 
-    public void resendRegistrationToken(String expiredToken) throws Exception {
+    public void resendRegistrationToken(String expiredToken) {
         User user = extractUserFromToken(expiredToken);
 
         String token = commonTokenService.createNewCommonTokenForUser(user);
@@ -62,9 +63,7 @@ public class RegistrationService {
     }
 
     @Transactional
-    public AuthenticationResponseDto confirmRegistration(
-            String token
-    ) throws Exception {
+    public AuthenticationResponseDto confirmRegistration(String token) {
         commonTokenService.validateToken(token);
 
         User user = extractUserFromToken(token);
@@ -78,7 +77,7 @@ public class RegistrationService {
                 .build();
     }
 
-    private User extractUserFromToken(String token) throws UserEmailNotFoundException {
+    private User extractUserFromToken(String token) {
         return commonTokenService.extractUser(token);
     }
 }

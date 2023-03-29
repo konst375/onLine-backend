@@ -15,7 +15,7 @@ public interface PostRepo extends CrudRepository<Post, UUID> {
     @Query("""
             SELECT p
             FROM Post p
-            JOIN FETCH p.imagesList
+            JOIN FETCH p.images
             WHERE p.id = (:id)
             """)
     Optional<Post> findByIdAndFetchImagesEagerly(@Param("id") UUID id);

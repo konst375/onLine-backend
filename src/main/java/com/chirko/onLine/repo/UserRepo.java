@@ -15,8 +15,16 @@ public interface UserRepo extends CrudRepository<User, UUID> {
     @Query("""
             SELECT u
             FROM User u
-            JOIN FETCH u.imagesList
+            JOIN FETCH u.images
             WHERE u.id = (SELECT p.user.id FROM Post p WHERE p.id = :postId)
             """)
-    Optional<User> findUserAndFetchAvatarEagerlyByPostId(UUID postId);
+    Optional<User> findUserByPostIdAndFetchAvatarEagerly(UUID postId);
+    @Query("""
+            SELECT u
+            FROM User u
+            JOIN FETCH u.images
+            JOIN FETCH u.posts
+            WHERE u.id = :userId
+            """)
+    Optional<User> findUserByIdAndFetchPostsAndImagesEagerly(UUID userId);// TODO: 27.03.2023 order post and images by createdDate
 }

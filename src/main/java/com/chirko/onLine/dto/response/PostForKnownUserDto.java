@@ -8,9 +8,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PostDto {
+public class PostForKnownUserDto {
     String id;
-    UserDto user;
     String text;
     List<ImgDto> images;
     Timestamp modifiedDate;

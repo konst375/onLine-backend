@@ -1,7 +1,9 @@
 package com.chirko.onLine.service;
 
+import com.chirko.onLine.dto.mapper.UserMapper;
 import com.chirko.onLine.dto.request.ResetUserPasswordDto;
 import com.chirko.onLine.dto.response.AuthenticationResponseDto;
+import com.chirko.onLine.dto.response.UserPageDto;
 import com.chirko.onLine.entity.User;
 import com.chirko.onLine.event.OnPasswordResetRequestEvent;
 import com.chirko.onLine.event.OnSuccessfulPasswordResetEvent;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +31,9 @@ public class UserService {
     private final AccessTokenService accessTokenService;
     private final CommonTokenService commonTokenService;
     private final ImgService imgService;
+    private final PostUtilsService postUtilsService;
+    private final UserMapper userMapper;
+
 
     public void resetPassword(String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() ->
@@ -77,7 +83,18 @@ public class UserService {
     }
 
     public User findUserAndFetchImagesEagerlyByPost(UUID postId) {
-        return userRepo.findUserAndFetchAvatarEagerlyByPostId(postId).orElseThrow(() ->
+        return userRepo.findUserByPostIdAndFetchAvatarEagerly(postId).orElseThrow(() ->
                 new OnLineException("User does not exist", ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+    }
+
+    public UserPageDto getUserPage(UUID userId) {
+        User user = userRepo.findUserByIdAndFetchPostsAndImagesEagerly(userId)
+                .orElseThrow(() -> new OnLineException("User not Found, userId: " + userId, ErrorCause.USER_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
+        user.setPosts(user.getPosts()
+                .stream()
+                .map(post -> postUtilsService.findPostByIdAndFetchImagesEagerly(post.getId()))
+                .collect(Collectors.toSet()));
+        return userMapper.userToUserPageDto(user);
     }
 }

@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class PostService {
-
     private final PostRepo postRepo;
     private final UserService userService;
+    private final PostUtilsService postUtilsService;
     private final PostMapper postMapper;
 
     public void createUserPost(String email, UserPostDto userPostDto) {
@@ -33,16 +33,14 @@ public class PostService {
         createdPost.setText(userPostDto.getText());
 
         if (userPostDto.getImages() != null) {
-            createdPost.setImagesList(getImagesListFromMultipartFileLis(userPostDto, createdPost));
+            createdPost.setImages(getImagesFromMultipartFileLis(userPostDto, createdPost));
         }
 
         postRepo.save(createdPost);
     }
 
     public PostDto findPost(UUID postId) {
-        Post foundPost = postRepo.findByIdAndFetchImagesEagerly(postId)
-                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId.toString(),
-                        ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
+        Post foundPost = postUtilsService.findPostByIdAndFetchImagesEagerly(postId);
         User user = userService.findUserAndFetchImagesEagerlyByPost(postId);
         foundPost.setUser(user);
         return postMapper.postToPostDto(foundPost);
@@ -57,15 +55,15 @@ public class PostService {
     public void updatePost(String email, UUID postId, UserPostDto userPostDto) {
         Post post = getPostAndCheckUserAccess(email, postId);
         post.setText(userPostDto.getText());
-        List<Img> dtoImages = getImagesListFromMultipartFileLis(userPostDto, post);
-        dtoImages.removeAll(post.getImagesList());
-        post.getImagesList().addAll(dtoImages);
+        List<Img> dtoImages = getImagesFromMultipartFileLis(userPostDto, post);
+        dtoImages.removeAll(post.getImages());
+        post.getImages().addAll(dtoImages);
     }
 
     private Post getPostAndCheckUserAccess(String email, UUID postId) {
         Post foundPost = postRepo.findById(postId)
                 .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId.toString(),
-                ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
+                        ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
         User user = foundPost.getUser();
         if (!user.getEmail().equals(email)) {
             throw new OnLineException("Post editing permission denied, userId: " + user.getId().toString(),
@@ -74,7 +72,7 @@ public class PostService {
         return foundPost;
     }
 
-    private List<Img> getImagesListFromMultipartFileLis(UserPostDto userPostDto, Post post) {
+    private List<Img> getImagesFromMultipartFileLis(UserPostDto userPostDto, Post post) {
         return userPostDto.getImages()
                 .stream()
                 .map(file -> {

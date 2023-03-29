@@ -4,6 +4,7 @@ import com.chirko.onLine.dto.request.OldPasswordDto;
 import com.chirko.onLine.dto.request.ResetUserPasswordDto;
 import com.chirko.onLine.dto.request.UpdatePasswordDto;
 import com.chirko.onLine.dto.response.AuthenticationResponseDto;
+import com.chirko.onLine.dto.response.UserPageDto;
 import com.chirko.onLine.exception.ErrorCause;
 import com.chirko.onLine.exception.OnLineException;
 import com.chirko.onLine.service.CommonTokenService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -63,5 +65,11 @@ public class UserController {
     public ResponseEntity<String> updateAvatar(@RequestParam("image") MultipartFile avatar, Principal principal) {
         userService.updateAvatar(avatar, principal.getName());
         return ResponseEntity.ok("Avatar updated");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserPageDto> getUserPage(@PathVariable(name = "id") UUID userId) {
+        UserPageDto userPageDto = userService.getUserPage(userId);
+        return ResponseEntity.ok(userPageDto);
     }
 }

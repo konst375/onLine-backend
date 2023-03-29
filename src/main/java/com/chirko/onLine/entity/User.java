@@ -42,13 +42,13 @@ public class User extends AbstractEntity implements UserDetails {
     private Role role = Role.USER;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Img> imagesList;
+    private List<Img> images;
 
     @OneToMany(mappedBy = "user")
-    private List<Post> posts;
+    private Set<Post> posts;
 
     @OneToMany(mappedBy = "user")
-    private List<Comment> comments;
+    private Set<Comment> comments;
 
     @OneToOne(mappedBy = "user")
     private CommonToken commonToken;
@@ -83,8 +83,9 @@ public class User extends AbstractEntity implements UserDetails {
         return enabled;
     }
 
+    //used by mapper
     public Img getAvatar() {
-        return imagesList.stream()
+        return images.stream()
                 .filter(Img::isAvatar)
                 .findFirst()
                 .orElse(null);

@@ -42,7 +42,7 @@ public class RegistrationService {
                 .password(passwordEncoder.encode(registerRequestDto.getPassword()))
                 .birthday(registerRequestDto.getBirthday())
                 .build();
-        user.setImagesList(List.of(
+        user.setImages(List.of(
                 Img.builder()
                         .isAvatar(true)
                         .img(imgService.getBytes(registerRequestDto.getAvatar()))

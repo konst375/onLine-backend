@@ -1,17 +1,21 @@
 package com.chirko.onLine.dto.mapper;
 
 import com.chirko.onLine.dto.response.PostDto;
+import com.chirko.onLine.dto.response.PostForKnownUserDto;
 import com.chirko.onLine.entity.Post;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {PostMapper.class, ImgMapper.class})
+import java.util.List;
+import java.util.Set;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {PostMapper.class, ImgMapper.class, UserMapper.class})
 public interface PostMapper {
-    @Mapping(target = "id", source = "entity.id")
-    @Mapping(target = "user", source = "entity.user")
-    @Mapping(target = "text", source = "entity.text")
-    @Mapping(target = "imagesList", source = "entity.imagesList")
-    @Mapping(target = "modifiedDate", source = "entity.modifiedDate")
     PostDto postToPostDto(Post entity);
+
+    List<PostDto> postsToPostsDto(List<Post> posts);
+
+    PostForKnownUserDto postToPostForKnownUserDto(Post entity);
+
+    List<PostForKnownUserDto> postsToPostsForKnownUserDto(Set<Post> images);
 }

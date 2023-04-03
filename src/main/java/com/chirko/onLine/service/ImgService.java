@@ -2,14 +2,18 @@ package com.chirko.onLine.service;
 
 import com.chirko.onLine.entity.Img;
 import com.chirko.onLine.entity.User;
+import com.chirko.onLine.exception.ErrorCause;
+import com.chirko.onLine.exception.OnLineException;
 import com.chirko.onLine.repo.ImgRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -31,6 +35,17 @@ public class ImgService {
             throw new RuntimeException(ex.getMessage());
         }
         return img;
+    }
+
+    Img findImgById(UUID imgId) {
+        return imgRepo.findById(imgId).orElseThrow(() -> new OnLineException("Image not found, imageId: " + imgId,
+                ErrorCause.IMAGE_NOT_FOUND, HttpStatus.NOT_FOUND));
+    }
+
+    Img findImgByIdAndFetchCommentsEagerly(UUID imgId) {
+        return imgRepo.findByIdAndFetchCommentsEagerly(imgId).orElseThrow(
+                () -> new OnLineException("Image not found, imageId: " + imgId, ErrorCause.IMAGE_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
     }
 
     private Img getAvatarImg(User user) {

@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class RegistrationService {
-
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final CommonTokenService commonTokenService;

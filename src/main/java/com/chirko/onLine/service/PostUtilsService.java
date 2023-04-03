@@ -17,7 +17,7 @@ public class PostUtilsService {
 
     Post findPostByIdAndFetchImagesEagerly(UUID postId) {
         return postRepo.findByIdAndFetchImagesEagerly(postId)
-                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId.toString(),
+                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId,
                         ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 }

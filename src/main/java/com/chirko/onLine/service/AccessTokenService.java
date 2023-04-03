@@ -17,17 +17,15 @@ import java.util.function.Function;
 
 @Service
 public class AccessTokenService {
-
     @Value("${jwt.access.token.secret}")
     private String secretKey;
-
     private final static int EXPIRATION_DATE = 300000;
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    String generateAccessToken(UserDetails userDetails) {
         return generateAccessToken(new HashMap<>(), userDetails);
     }
 
@@ -41,10 +39,7 @@ public class AccessTokenService {
         return claimsResolver.apply(claims);
     }
 
-    private String generateAccessToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails
-    ) {
+    private String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

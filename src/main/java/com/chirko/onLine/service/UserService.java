@@ -76,13 +76,13 @@ public class UserService {
         imgService.updateAvatarForUser(avatar, findUserByEmail(email));
     }
 
-    public User findUserByEmail(String email) {
+    User findUserByEmail(String email) {
         return userRepo.findByEmail(email).orElseThrow(() ->
-                new OnLineException("User with this email does not exist, email: " + email,
-                        ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+                new OnLineException("User with this email does not exist, email: " + email, ErrorCause.USER_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
     }
 
-    public User findUserAndFetchImagesEagerlyByPost(UUID postId) {
+    public User findUserByPostAndFetchImagesEagerly(UUID postId) {
         return userRepo.findUserByPostIdAndFetchAvatarEagerly(postId).orElseThrow(() ->
                 new OnLineException("User does not exist", ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
     }

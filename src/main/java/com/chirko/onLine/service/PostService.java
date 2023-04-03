@@ -27,23 +27,31 @@ public class PostService {
     private final PostUtilsService postUtilsService;
     private final PostMapper postMapper;
 
-    public void createUserPost(String email, UserPostDto userPostDto) {
+    public void createUserPost(String email, UserPostDto dto) {
         Post createdPost = new Post();
         createdPost.setUser(userService.findUserByEmail(email));
-        createdPost.setText(userPostDto.getText());
+        createdPost.setText(dto.getText());
 
-        if (userPostDto.getImages() != null) {
-            createdPost.setImages(getImagesFromMultipartFileLis(userPostDto, createdPost));
+        if (dto.getImages() != null) {
+            createdPost.setImages(getImagesFromMultipartFileLis(dto, createdPost));
         }
 
         postRepo.save(createdPost);
     }
 
-    public PostDto findPost(UUID postId) {
-        Post foundPost = postUtilsService.findPostByIdAndFetchImagesEagerly(postId);
-        User user = userService.findUserAndFetchImagesEagerlyByPost(postId);
-        foundPost.setUser(user);
-        return postMapper.postToPostDto(foundPost);
+    public PostDto findPostWithEagerlyImagesById(UUID postId) {
+        Post post = postUtilsService.findPostByIdAndFetchImagesEagerly(postId);
+        post.setUser(userService.findUserByPostAndFetchImagesEagerly(postId));
+        return postMapper.postToPostDto(post);
+    }
+
+    @Transactional
+    public void updatePost(String email, UUID postId, UserPostDto dto) {
+        Post post = getPostAndCheckUserAccess(email, postId);
+        post.setText(dto.getText());
+        List<Img> dtoImages = getImagesFromMultipartFileLis(dto, post);
+        dtoImages.removeAll(post.getImages());
+        post.getImages().addAll(dtoImages);
     }
 
     public void deletePost(String email, UUID postId) {
@@ -51,22 +59,22 @@ public class PostService {
         postRepo.delete(post);
     }
 
-    @Transactional
-    public void updatePost(String email, UUID postId, UserPostDto userPostDto) {
-        Post post = getPostAndCheckUserAccess(email, postId);
-        post.setText(userPostDto.getText());
-        List<Img> dtoImages = getImagesFromMultipartFileLis(userPostDto, post);
-        dtoImages.removeAll(post.getImages());
-        post.getImages().addAll(dtoImages);
+    Post findPostByIdAndFetchCommentsEagerly(UUID postId) {
+        return postRepo.findByIdAndFetchCommentsEagerly(postId).orElseThrow(
+                () -> new OnLineException("Post not found, postId: " + postId, ErrorCause.POST_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
+    }
+
+    Post findPostById(UUID postId) {
+        return postRepo.findById(postId).orElseThrow(() -> new OnLineException("Post not found, postId: " + postId,
+                ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
     private Post getPostAndCheckUserAccess(String email, UUID postId) {
-        Post foundPost = postRepo.findById(postId)
-                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId.toString(),
-                        ErrorCause.POST_NOT_FOUND, HttpStatus.NOT_FOUND));
+        Post foundPost = findPostById(postId);
         User user = foundPost.getUser();
         if (!user.getEmail().equals(email)) {
-            throw new OnLineException("Post editing permission denied, userId: " + user.getId().toString(),
+            throw new OnLineException("Post editing permission denied, userId: " + user.getId(),
                     ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
         }
         return foundPost;

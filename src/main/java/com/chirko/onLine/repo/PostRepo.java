@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface PostRepo extends CrudRepository<Post, UUID> {
-
     @Query("""
             SELECT p
             FROM Post p
@@ -19,4 +18,12 @@ public interface PostRepo extends CrudRepository<Post, UUID> {
             WHERE p.id = (:id)
             """)
     Optional<Post> findByIdAndFetchImagesEagerly(@Param("id") UUID id);
+
+    @Query("""
+            SELECT p
+            FROM Post p
+            JOIN FETCH p.comments
+            WHERE p.id = (:id)
+            """)
+    Optional<Post> findByIdAndFetchCommentsEagerly(@Param("id") UUID id);
 }

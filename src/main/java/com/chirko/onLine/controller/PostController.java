@@ -18,21 +18,21 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createUserPost(UserPostDto userPostDto, Principal principal) {
-        postService.createUserPost(principal.getName(), userPostDto);
+    public ResponseEntity<String> createUserPost(UserPostDto dto, Principal principal) {
+        postService.createUserPost(principal.getName(), dto);
         return new ResponseEntity<>("Post created", HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPost(@PathVariable(name = "id") UUID postId) {
-        PostDto foundPostDto = postService.findPost(postId);
+        PostDto foundPostDto = postService.findPostWithEagerlyImagesById(postId);
         return new ResponseEntity<>(foundPostDto, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updatePost(@PathVariable(name = "id") UUID postId, UserPostDto userPostDto,
+    public ResponseEntity<String> updatePost(@PathVariable(name = "id") UUID postId, UserPostDto dto,
                                              Principal principal) {
-        postService.updatePost(principal.getName(), postId, userPostDto);
+        postService.updatePost(principal.getName(), postId, dto);
         return ResponseEntity.ok("Successful updated");
     }
 
@@ -42,4 +42,3 @@ public class PostController {
         return ResponseEntity.ok("Successful deleted");
     }
 }
-

@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -24,4 +25,7 @@ public class Post extends AbstractEntity {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<Img> images;
+
+    @OneToMany(mappedBy = "post")
+    private Set<Comment> comments;
 }

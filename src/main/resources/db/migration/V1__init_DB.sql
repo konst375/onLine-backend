@@ -26,7 +26,7 @@ CREATE TABLE img
     img           BYTEA     NOT NULL,
     post_id       UUID REFERENCES post,
     member_id     UUID REFERENCES member,
-    is_avatar      BOOLEAN,
+    is_avatar     BOOLEAN,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL
 );
@@ -35,6 +35,8 @@ CREATE TABLE comment
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     member_id     UUID REFERENCES member,
+    img_id        UUID REFERENCES img,
+    post_id       UUID REFERENCES post,
     text          TEXT      NOT NULL,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL

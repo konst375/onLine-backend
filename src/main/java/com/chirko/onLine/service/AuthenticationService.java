@@ -15,11 +15,9 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
-
     private final UserRepo userRepo;
     private final AccessTokenService accessTokenService;
     private final AuthenticationManager authenticationManager;
-
 
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
         String email = request.getEmail();

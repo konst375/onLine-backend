@@ -15,7 +15,6 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class CommonTokenService {
-
     private final CommonTokenRepo commonTokenRepo;
 
     public String createSaveAndGetCommonTokenForUser(User user) {

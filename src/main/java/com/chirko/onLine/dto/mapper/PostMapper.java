@@ -9,7 +9,7 @@ import org.mapstruct.ReportingPolicy;
 import java.util.List;
 import java.util.Set;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {PostMapper.class, ImgMapper.class, UserMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {ImgMapper.class, UserMapper.class})
 public interface PostMapper {
     PostDto postToPostDto(Post entity);
 

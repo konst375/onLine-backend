@@ -1,6 +1,6 @@
 package com.chirko.onLine.config;
 
-import com.chirko.onLine.repo.UserRepo;
+import com.chirko.onLine.repos.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

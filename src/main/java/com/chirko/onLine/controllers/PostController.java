@@ -1,12 +1,14 @@
 package com.chirko.onLine.controllers;
 
 import com.chirko.onLine.dto.request.RQPostDto;
+import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.services.PostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +22,22 @@ public class PostController {
 
     @PostMapping("/create")
     public ResponseEntity<UserPostDto> createUserPost(RQPostDto dto, @AuthenticationPrincipal User user) {
-        UserPostDto userPostDto = postService.createUserPost(user, dto);
-        return new ResponseEntity<>(userPostDto, HttpStatus.CREATED);
+        UserPostDto response = postService.createUserPost(user, dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    public ResponseEntity<CommunityPostDto> createCommunityPost(RQPostDto dto,
+                                                                @PathVariable(name = "id") UUID communityId) {
+        CommunityPostDto response = postService.createCommunityPost(communityId, dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserPostDto> getPost(@PathVariable(name = "id") UUID postId) {
-        UserPostDto post = postService.findPostByIdAndFetchImagesAndTagsEagerly(postId);
-        return new ResponseEntity<>(post, HttpStatus.OK);
+        UserPostDto response = postService.findPostByIdAndFetchImagesAndTagsEagerly(postId);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

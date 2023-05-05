@@ -1,20 +1,32 @@
 package com.chirko.onLine.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+@NamedEntityGraph(
+        name = "Community.dependencies",
+        attributeNodes = {
+                @NamedAttributeNode("tags"),
+                @NamedAttributeNode("images"),
+                @NamedAttributeNode("followers"),
+                @NamedAttributeNode(value = "posts", subgraph = "posts-subgraph"),},
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "posts-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("tags"), @NamedAttributeNode("images")
+                        })
+        })
 public class Community extends AbstractEntity {
     private String name;
     private String subject;

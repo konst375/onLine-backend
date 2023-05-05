@@ -42,19 +42,19 @@ public class CommunityController {
     }
 
     @PutMapping("/{id}/avatar/update")
-    public ResponseEntity<String> updateAvatar(@PathVariable(name = "id") UUID communityId,
+    public ResponseEntity<CommunityPageDto> updateAvatar(@PathVariable(name = "id") UUID communityId,
                                                @RequestParam("image") MultipartFile avatar,
                                                @AuthenticationPrincipal User user) {
-        communityService.updateAvatar(communityId, avatar, user);
-        return ResponseEntity.ok("Avatar successful updated");
+        CommunityPageDto response = communityService.updateAvatar(communityId, avatar, user);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/cover/update")
-    public ResponseEntity<String> updateCover(@PathVariable(name = "id") UUID communityId,
+    public ResponseEntity<CommunityPageDto> updateCover(@PathVariable(name = "id") UUID communityId,
                                               @RequestParam("image") MultipartFile cover,
                                               @AuthenticationPrincipal User user) {
-        communityService.updateCover(communityId, cover, user);
-        return ResponseEntity.ok("Cover successful updated");
+        CommunityPageDto response = communityService.updateCover(communityId, cover, user);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}/delete")
@@ -65,16 +65,16 @@ public class CommunityController {
     }
 
     @PutMapping("/{id}/subscribe")
-    public ResponseEntity<String> subscribe(@PathVariable(name = "id") UUID communityId,
+    public ResponseEntity<CommunityPageDto> subscribe(@PathVariable(name = "id") UUID communityId,
                                             @AuthenticationPrincipal User user) {
-        communityService.subscribe(communityId, user);
-        return ResponseEntity.ok("Successful subscribed");
+        CommunityPageDto response = communityService.subscribe(communityId, user);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("{id}/unsubscribe")
-    public ResponseEntity<String> unsubscribe(@PathVariable(name = "id") UUID communityId,
+    public ResponseEntity<CommunityPageDto> unsubscribe(@PathVariable(name = "id") UUID communityId,
                                               @AuthenticationPrincipal User user) {
-        communityService.unsubscribe(communityId, user);
-        return ResponseEntity.ok("Successful unsubscribed");
+        CommunityPageDto response = communityService.unsubscribe(communityId, user);
+        return ResponseEntity.ok(response);
     }
 }

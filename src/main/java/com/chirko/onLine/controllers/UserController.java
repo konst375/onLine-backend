@@ -18,23 +18,23 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/avatar/update")
-    public ResponseEntity<String> updateAvatar(@RequestParam("image") MultipartFile avatar,
-                                               @AuthenticationPrincipal User user) {
-        userService.updateAvatar(user, avatar);
-        return ResponseEntity.ok("Avatar successful updated");
+    public ResponseEntity<UserPageDto> updateAvatar(@RequestParam("image") MultipartFile avatar,
+                                                    @AuthenticationPrincipal UUID userId) {
+        UserPageDto response = userService.updateAvatar(userId, avatar);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/cover/update")
-    public ResponseEntity<String> updateCover(@RequestParam("cover") MultipartFile cover,
-                                               @AuthenticationPrincipal User user) {
-        userService.updateCover(user, cover);
-        return ResponseEntity.ok("Cover successful updated");
+    public ResponseEntity<UserPageDto> updateCover(@RequestParam("cover") MultipartFile cover,
+                                                   @AuthenticationPrincipal UUID userId) {
+        UserPageDto response = userService.updateCover(userId, cover);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserPageDto> getUserPage(@PathVariable(name = "id") UUID userId) {
-        UserPageDto userPageDto = userService.getUserPage(userId);
-        return ResponseEntity.ok(userPageDto);
+        UserPageDto response = userService.getUserPage(userId);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping

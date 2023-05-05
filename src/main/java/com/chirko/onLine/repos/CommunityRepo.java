@@ -36,14 +36,6 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             FROM Community c
             WHERE c.id = :id
             """)
-    @EntityGraph(attributePaths = {"followers"})
-    Optional<Community> findByIdAndFetchFollowersEagerly(@Param("id") UUID id);
-
-    @Query("""
-            SELECT c
-            FROM Community c
-            WHERE c.id = :id
-            """)
-    @EntityGraph(attributePaths = {"tags", "images", "followers", "posts"})
+    @EntityGraph(value = "Community.dependencies")
     Optional<Community> findByIdAndFetchAllDependencies(@Param("id") UUID id);
 }

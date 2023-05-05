@@ -12,6 +12,7 @@ import com.chirko.onLine.entities.Community;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.Tag;
 import com.chirko.onLine.entities.User;
+import com.chirko.onLine.entities.enums.Role;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.CommunityRepo;
@@ -38,6 +39,7 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
     private final CommunityRepo communityRepo;
 
+    @Transactional
     public BaseCommunityDto createCommunity(User user, RQRegisterCommunityDto dto) {
         Community community = Community.builder()
                 .name(dto.getName())
@@ -49,25 +51,28 @@ public class CommunityService {
             community.setImages(Set.of(imgService.buildCommunityAvatar(dto.getAvatar(), community)));
         }
         communityRepo.save(community);
+        user.setRole(Role.ADMIN);
         return communityMapper.toBaseDto(community);
     }
 
     public CommunityPageDto getCommunityPage(UUID communityId) {
-        long time = System.currentTimeMillis();
         Community community = communityRepo.findByIdAndFetchAllDependencies(communityId)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-        time -= System.currentTimeMillis();
-        System.out.println(time);
-        Set<CommunityPostDto> posts = postMapper.toCommunityPostsDto(community.getPosts());
-        return communityMapper.toCommunityPageDto(community, posts);
+        Set<CommunityPostDto> postsDto = postMapper.toCommunityPostsDto(community.getPosts());
+        return communityMapper.toCommunityPageDto(community, postsDto);
+    }
+
+    public Community getCommunity(UUID communityId) {
+        return communityRepo.findByIdAndFetchImagesEagerly(communityId)
+                .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
     @Transactional
-    public void updateAvatar(UUID communityId, MultipartFile avatar, User user) {
+    public CommunityPageDto updateAvatar(UUID communityId, MultipartFile avatar, User user) {
+        Community community = getCommunityAndCheckUserAccess(communityId, user);
         byte[] img;
         if (avatar != null) {
             img = imgService.getBytes(avatar);
-            Community community = getCommunityAndCheckUserAccess(communityId, user);
             if (community.getAvatar() != null) {
                 community.getAvatar().setImg(img);
             } else {
@@ -78,14 +83,16 @@ public class CommunityService {
                         .build());
             }
         }
+        Set<CommunityPostDto> posts = postMapper.toCommunityPostsDto(community.getPosts());
+        return communityMapper.toCommunityPageDto(community, posts);
     }
 
     @Transactional
-    public void updateCover(UUID communityId, MultipartFile cover, User user) {
+    public CommunityPageDto updateCover(UUID communityId, MultipartFile cover, User user) {
+        Community community = getCommunityAndCheckUserAccess(communityId, user);
         byte[] img;
         if (cover != null) {
             img = imgService.getBytes(cover);
-            Community community = getCommunityAndCheckUserAccess(communityId, user);
             if (community.getCover() != null) {
                 community.getCover().setImg(img);
             } else {
@@ -96,6 +103,8 @@ public class CommunityService {
                         .build());
             }
         }
+        Set<CommunityPostDto> posts = postMapper.toCommunityPostsDto(community.getPosts());
+        return communityMapper.toCommunityPageDto(community, posts);
     }
 
     public void deleteCommunity(UUID communityId, User user) {
@@ -112,19 +121,23 @@ public class CommunityService {
     }
 
     @Transactional
-    public void subscribe(UUID communityId, User user) {
-        Community community = communityRepo.findByIdAndFetchFollowersEagerly(communityId)
+    public CommunityPageDto subscribe(UUID communityId, User user) {
+        Community community = communityRepo.findByIdAndFetchAllDependencies(communityId)
                 .orElseThrow(() -> new OnLineException("Community not found, communityId: " + communityId,
                         ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
         community.getFollowers().add(user);
+        Set<CommunityPostDto> posts = postMapper.toCommunityPostsDto(community.getPosts());
+        return communityMapper.toCommunityPageDto(community, posts);
     }
 
     @Transactional
-    public void unsubscribe(UUID communityId, User user) {
-        Community community = communityRepo.findByIdAndFetchFollowersEagerly(communityId)
+    public CommunityPageDto unsubscribe(UUID communityId, User user) {
+        Community community = communityRepo.findByIdAndFetchAllDependencies(communityId)
                 .orElseThrow(() -> new OnLineException("Community not found, communityId: " + communityId,
                         ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
         community.getFollowers().remove(user);
+        Set<CommunityPostDto> posts = postMapper.toCommunityPostsDto(community.getPosts());
+        return communityMapper.toCommunityPageDto(community, posts);
     }
 
     public Set<BaseUserDto> getFollowers(UUID communityId) {
@@ -147,7 +160,7 @@ public class CommunityService {
     }
 
     private Community getCommunityAndCheckUserAccess(UUID communityId, User user) {
-        Community community = communityRepo.findByIdAndFetchImagesEagerly(communityId)
+        Community community = communityRepo.findByIdAndFetchAllDependencies(communityId)
                 .orElseThrow(() -> new OnLineException(
                         "Community not found, communityId: " + communityId,
                         ErrorCause.COMMUNITY_NOT_FOUND,

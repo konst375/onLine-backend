@@ -1,24 +1,23 @@
 package com.chirko.onLine.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
-
 @Entity
+@Table(name = "likes")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
-public class Comment extends AbstractEntity {
-    @Column(nullable = false)
-    private String text;
-
+public class Like extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
@@ -31,6 +30,7 @@ public class Comment extends AbstractEntity {
     @JoinColumn(name = "img_id", referencedColumnName = "id")
     private Img img;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
-    private Set<Like> likes;
+    @ManyToOne
+    @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    private Comment comment;
 }

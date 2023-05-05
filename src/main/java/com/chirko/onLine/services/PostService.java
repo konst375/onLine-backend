@@ -2,11 +2,10 @@ package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.mappers.PostMapper;
 import com.chirko.onLine.dto.request.RQPostDto;
+import com.chirko.onLine.dto.response.post.BasePostDto;
+import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
-import com.chirko.onLine.entities.Img;
-import com.chirko.onLine.entities.Post;
-import com.chirko.onLine.entities.Tag;
-import com.chirko.onLine.entities.User;
+import com.chirko.onLine.entities.*;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.PostRepo;
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 public class PostService {
     private final TagService tagService;
     private final ImgService imgService;
+    private final CommunityService communityService;
     private final PostMapper postMapper;
     private final PostRepo postRepo;
 
@@ -41,9 +41,23 @@ public class PostService {
         return postMapper.toUserPostDto(post);
     }
 
+    public CommunityPostDto createCommunityPost(UUID communityId, RQPostDto dto) {
+        Community community = communityService.getCommunity(communityId);
+        Post post = Post.builder()
+                .community(community)
+                .text(dto.getText())
+                .build();
+        post.setImages(getImages(dto, post));
+        post.setTags(getTags(dto, post));
+        postRepo.save(post);
+        return postMapper.toCommunityPostDto(post);
+    }
+
     public Post getById(UUID postId) {
         return postRepo.findById(postId)
-                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId, ErrorCause.POST_NOT_FOUND,
+                .orElseThrow(() -> new OnLineException(
+                        "Post not found, postId: " + postId,
+                        ErrorCause.POST_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
     }
 
@@ -72,11 +86,7 @@ public class PostService {
     }
 
     private Post getPostAndCheckUserAccess(User user, UUID postId) {
-        Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new OnLineException(
-                        "Post not found, postId: " + postId,
-                        ErrorCause.POST_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
+        Post post = getById(postId);
         if (!post.getUser().equals(user)) {
             throw new OnLineException("Post editing permission denied, userId: " + user.getId(),
                     ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
@@ -96,5 +106,9 @@ public class PostService {
                         .img(bytes)
                         .build())
                 .collect(Collectors.toSet());
+    }
+
+    public BasePostDto toDto(Post post) {
+        return postMapper.toBasePostDto(post);
     }
 }

@@ -27,43 +27,47 @@ public class UserService {
     private final UserRepo userRepo;
 
     @Transactional
-    public void updateAvatar(User user, MultipartFile avatar) {
+    public UserPageDto updateAvatar(UUID userId, MultipartFile avatar) {
+        User user = userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)
+                .orElseThrow(() -> new OnLineException("User not found, userId: " + userId,
+                        ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
         byte[] img;
         if (avatar != null) {
             img = imgService.getBytes(avatar);
-            User userWithAvatar = userRepo.findUserAndFetchImagesEagerly(user)
-                    .orElseThrow(() -> new OnLineException("User not found, userId: " + user.getId(),
-                            ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
-            if (userWithAvatar.getAvatar() != null) {
-                userWithAvatar.getAvatar().setImg(img);
+            if (user.getAvatar() != null) {
+                user.getAvatar().setImg(img);
             } else {
-                userWithAvatar.getImages().add(Img.builder()
+                user.getImages().add(Img.builder()
                         .img(img)
                         .isAvatar(true)
-                        .user(userWithAvatar)
+                        .user(user)
                         .build());
             }
         }
+        Set<UserPostDto> posts = postMapper.toUserPostsDto(user.getPosts());
+        return userMapper.userToUserPageDto(user, posts);
     }
 
     @Transactional
-    public void updateCover(User user, MultipartFile cover) {
+    public UserPageDto updateCover(UUID userId, MultipartFile cover) {
+        User user = userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)
+                .orElseThrow(() -> new OnLineException("User not found, userId: " + userId,
+                        ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
         byte[] img;
         if (cover != null) {
             img = imgService.getBytes(cover);
-            User userWithCover = userRepo.findUserAndFetchImagesEagerly(user)
-                    .orElseThrow(() -> new OnLineException("User not found, userId: " + user.getId(),
-                            ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
-            if (userWithCover.getCover() != null) {
-                userWithCover.getCover().setImg(img);
+            if (user.getCover() != null) {
+                user.getCover().setImg(img);
             } else {
-                userWithCover.getImages().add(Img.builder()
+                user.getImages().add(Img.builder()
                         .img(img)
                         .isCover(true)
-                        .user(userWithCover)
+                        .user(user)
                         .build());
             }
         }
+        Set<UserPostDto> posts = postMapper.toUserPostsDto(user.getPosts());
+        return userMapper.userToUserPageDto(user, posts);
     }
 
     public UserPageDto getUserPage(UUID userId) {

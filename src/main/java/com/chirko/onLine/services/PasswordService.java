@@ -21,7 +21,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class PasswordService {
-    private final CommonTokenService commonTokenService;
+    private final OtpService otpService;
     private final AccessTokenService accessTokenService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
@@ -40,11 +40,11 @@ public class PasswordService {
     @Transactional
     public AuthenticationResponseDto saveResetPassword(@Valid RQResetUserPasswordDto dto) {
         String token = dto.getToken();
-        commonTokenService.validateToken(token);
-        User user = commonTokenService.extractUser(token);
+        otpService.validateToken(token);
+        User user = otpService.extractUser(token);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         applicationEventPublisher.publishEvent(new OnSuccessfulPasswordResetEvent(user));
-        commonTokenService.deleteCommonTokenForUser(user);
+        otpService.deleteCommonTokenForUser(user);
         return new AuthenticationResponseDto(accessTokenService.generateAccessToken(user));
     }
 
@@ -52,7 +52,7 @@ public class PasswordService {
         User user = userRepo.findByEmail(email).orElseThrow(() ->
                 new OnLineException("User with this email does not exist, email: " + email, ErrorCause.USER_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
-        String token = commonTokenService.getCommonToken(user);
+        String token = otpService.getCommonToken(user);
         applicationEventPublisher.publishEvent(new OnPasswordResetRequestEvent(user, token));
     }
 }

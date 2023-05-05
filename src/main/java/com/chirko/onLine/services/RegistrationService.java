@@ -20,7 +20,7 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 public class RegistrationService {
-    private final CommonTokenService commonTokenService;
+    private final OtpService otpService;
     private final AccessTokenService accessTokenService;
     private final ImgService imgService;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -43,26 +43,26 @@ public class RegistrationService {
                 user.setImages(Set.of(imgService.buildUserAvatar(dto.getAvatar(), user)));
         }
         userRepo.save(user);
-        String token = commonTokenService.getCommonToken(user);
+        String token = otpService.getCommonToken(user);
         applicationEventPublisher.publishEvent(new OnSuccessfulRegistrationEvent(user, token));
     }
 
     public void resendRegistrationToken(String expiredToken) {
         User user = extractUserFromToken(expiredToken);
-        String token = commonTokenService.generateNewCommonToken(user);
+        String token = otpService.generateNewCommonToken(user);
         applicationEventPublisher.publishEvent(new OnResendingConfirmationLinkEvent(user, token));
     }
 
     @Transactional
     public AuthenticationResponseDto confirmRegistration(String token) {
-        commonTokenService.validateToken(token);
+        otpService.validateToken(token);
         User user = extractUserFromToken(token);
         user.setEnabled(true);
-        commonTokenService.deleteCommonTokenForUser(user);
+        otpService.deleteCommonTokenForUser(user);
         return new AuthenticationResponseDto(accessTokenService.generateAccessToken(user));
     }
 
     private User extractUserFromToken(String token) {
-        return commonTokenService.extractUser(token);
+        return otpService.extractUser(token);
     }
 }

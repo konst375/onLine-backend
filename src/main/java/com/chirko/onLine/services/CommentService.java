@@ -26,6 +26,10 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final CommentRepo commentRepo;
 
+    public CommentDto toDto(Comment comment) {
+        return commentMapper.toDto(comment);
+    }
+
     public CommentDto addPostComment(UUID postId, User user, RQCommentDto dto) {
         Comment comment = buildComment(user, dto);
         comment.setPost(postService.getById(postId));
@@ -63,10 +67,11 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment(UUID commentId, User user, RQCommentDto dto) {
+    public CommentDto updateComment(UUID commentId, User user, RQCommentDto dto) {
         Comment comment = getById(commentId);
         checkUserAccess(comment, user);
         comment.setText(dto.getText());
+        return commentMapper.toDto(comment);
     }
 
     public void deleteComment(UUID commentId, User user) {
@@ -94,5 +99,9 @@ public class CommentService {
                 .user(user)
                 .text(dto.getText())
                 .build();
+    }
+
+    public Comment getComment(UUID commentId) {
+        return getById(commentId);
     }
 }

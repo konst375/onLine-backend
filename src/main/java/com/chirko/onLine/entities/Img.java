@@ -37,4 +37,7 @@ public class Img extends AbstractEntity {
 
     @OneToMany(mappedBy = "img")
     private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "img", cascade = CascadeType.ALL)
+    private Set<Like> likes;
 }

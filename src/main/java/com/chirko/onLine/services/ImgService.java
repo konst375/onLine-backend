@@ -1,5 +1,7 @@
 package com.chirko.onLine.services;
 
+import com.chirko.onLine.dto.mappers.ImgMapper;
+import com.chirko.onLine.dto.response.ImgDto;
 import com.chirko.onLine.entities.Community;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.User;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ImgService {
     private final ImgRepo imgRepo;
+    private final ImgMapper imgMapper;
 
     public Img getById(UUID imgId) {
         return imgRepo.findById(imgId)
@@ -58,5 +61,9 @@ public class ImgService {
                 .img(getBytes(avatar))
                 .isAvatar(true)
                 .build();
+    }
+
+    public ImgDto toDto(Img img) {
+        return imgMapper.toDto(img);
     }
 }

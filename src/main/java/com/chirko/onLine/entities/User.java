@@ -14,7 +14,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "member")
-@Data
+@Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -61,8 +62,8 @@ public class User extends AbstractEntity implements UserDetails {
     @ManyToMany(mappedBy = "followers")
     private Set<Community> communities;
 
-    @OneToOne(mappedBy = "user")
-    private CommonToken commonToken;
+    @OneToMany(mappedBy = "user")
+    private Set<Like> likes;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

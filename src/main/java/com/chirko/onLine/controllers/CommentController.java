@@ -29,8 +29,8 @@ public class CommentController {
 
     @GetMapping("/post/{id}")
     public ResponseEntity<Set<CommentDto>> getPostComments(@PathVariable(name = "id") UUID postId) {
-        Set<CommentDto> comments = commentService.getPostComments(postId);
-        return new ResponseEntity<>(comments, HttpStatus.OK);
+        Set<CommentDto> response = commentService.getPostComments(postId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/img/{id}")
@@ -43,16 +43,16 @@ public class CommentController {
 
     @GetMapping("/img/{id}")
     public ResponseEntity<Set<CommentDto>> getImgComments(@PathVariable(name = "id") UUID imgId) {
-        Set<CommentDto> comments = commentService.getImgComments(imgId);
-        return new ResponseEntity<>(comments, HttpStatus.OK);
+        Set<CommentDto> response = commentService.getImgComments(imgId);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateComment(@PathVariable(name = "id") UUID commentId,
+    public ResponseEntity<CommentDto> updateComment(@PathVariable(name = "id") UUID commentId,
                                                 @RequestBody RQCommentDto dto,
                                                 @AuthenticationPrincipal User user) {
-        commentService.updateComment(commentId, user, dto);
-        return ResponseEntity.ok("Comment successful updated");
+        CommentDto response = commentService.updateComment(commentId, user, dto);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

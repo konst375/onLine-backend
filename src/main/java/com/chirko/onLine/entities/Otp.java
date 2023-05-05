@@ -9,15 +9,14 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Data
+@Table(name = "common_token")
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CommonToken {
-    @Transient
-    public static final long EXPIRATION = 300000;//5 min
-
+public class Otp {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)

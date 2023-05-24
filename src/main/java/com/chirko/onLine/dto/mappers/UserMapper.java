@@ -8,9 +8,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+@Component
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {ImgMapper.class})
 @Named("UserMapper")
 public interface UserMapper {

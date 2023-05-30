@@ -10,24 +10,19 @@ import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.Community;
 import com.chirko.onLine.entities.Img;
-import com.chirko.onLine.entities.Tag;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.entities.enums.Role;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.CommunityRepo;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -46,13 +41,13 @@ public class CommunityService {
                 .subject(dto.getSubject())
                 .admin(user)
                 .build();
-        community.setTags(getTags(dto, community));
+        community.setTags(tagService.getCommunityTags(community, dto));
         if (dto.getAvatar() != null) {
             community.setImages(Set.of(imgService.buildCommunityAvatar(dto.getAvatar(), community)));
         }
-        communityRepo.save(community);
+        Community savedCommunity = communityRepo.save(community);
         user.setRole(Role.ADMIN);
-        return communityMapper.toBaseDto(community);
+        return communityMapper.toBaseDto(savedCommunity);
     }
 
     public CommunityPageDto getCommunityPage(UUID communityId) {
@@ -146,17 +141,6 @@ public class CommunityService {
                         ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
         followers.forEach(user -> user.setImages(imgService.findUserImages(user)));
         return userMapper.toBaseUsersDto(followers);
-    }
-
-    private Set<Tag> getTags(RQRegisterCommunityDto dto, Community community) {
-        String tags = dto.getTags();
-        if (StringUtils.isAllBlank(tags)) {
-            return Collections.emptySet();
-        }
-        return Arrays.stream(tags.split("#"))
-                .filter(text -> !text.isEmpty())
-                .map(tagName -> tagService.createCommunityTag(community, tagName))
-                .collect(Collectors.toSet());
     }
 
     private Community getCommunityAndCheckUserAccess(UUID communityId, User user) {

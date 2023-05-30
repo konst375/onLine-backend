@@ -5,16 +5,17 @@ import com.chirko.onLine.dto.request.RQPostDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
-import com.chirko.onLine.entities.*;
+import com.chirko.onLine.entities.Community;
+import com.chirko.onLine.entities.Img;
+import com.chirko.onLine.entities.Post;
+import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.PostRepo;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class PostService {
                 .text(dto.getText())
                 .build();
         post.setImages(getImages(dto, post));
-        post.setTags(getTags(dto, post));
+        post.setTags(tagService.getPostTags(post, dto));
         postRepo.save(post);
         return postMapper.toUserPostDto(post);
     }
@@ -48,7 +49,7 @@ public class PostService {
                 .text(dto.getText())
                 .build();
         post.setImages(getImages(dto, post));
-        post.setTags(getTags(dto, post));
+        post.setTags(tagService.getPostTags(post, dto));
         postRepo.save(post);
         return postMapper.toCommunityPostDto(post);
     }
@@ -72,17 +73,6 @@ public class PostService {
     public void deletePost(User user, UUID postId) {
         Post post = getPostAndCheckUserAccess(user, postId);
         postRepo.delete(post);
-    }
-
-    private Set<Tag> getTags(RQPostDto dto, Post post) {
-        String tags = dto.getTags();
-        if (StringUtils.isAllBlank(tags)) {
-            return Collections.emptySet();
-        }
-        return Arrays.stream(tags.split("#"))
-                .filter(text -> !text.isEmpty())
-                .map(tagName -> tagService.createPostTag(post, tagName))
-                .collect(Collectors.toSet());
     }
 
     private Post getPostAndCheckUserAccess(User user, UUID postId) {

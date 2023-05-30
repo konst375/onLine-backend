@@ -1,60 +1,59 @@
-package com.chirko.onLine.services;
+package com.chirko.onLine.unitTests.services;
 
-import com.chirko.onLine.dto.mappers.PostMapper;
-import com.chirko.onLine.dto.mappers.UserMapper;
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.mappers.PostMapperImpl;
+import com.chirko.onLine.dto.mappers.UserMapperImpl;
 import com.chirko.onLine.dto.response.user.UserPageDto;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.UserRepo;
-import org.junit.jupiter.api.Assertions;
+import com.chirko.onLine.services.ImgService;
+import com.chirko.onLine.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {
+        UserService.class,
+        UserMapperImpl.class,
+        PostMapperImpl.class
+})
 class UserServiceTest {
-    @InjectMocks
+    @Autowired
     private UserService userService;
-    @Mock
+    @MockBean
     private ImgService imgService;
-    @Mock
+    @MockBean
     private UserRepo userRepo;
-    @Mock
-    private UserMapper userMapper;
-    @Mock
-    private PostMapper postMapper;
 
-    // userService.updateAvatar() method tests
     @Test
     void ifUserNotFoundWhenTryingToUpdateAvatar() {
         // given
-        UUID userId = UUID.randomUUID();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("defaultAvatar.png", (byte[]) null);
-        when(userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)).thenThrow(
-                new OnLineException("User not found, userId: " + userId,
-                        ErrorCause.USER_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
         // when
         // then
-        Assertions.assertThrows(OnLineException.class,
-                () -> userService.updateAvatar(userId, mockMultipartFile),
-                "User not found, userId: " + userId);
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> userService.updateAvatar(UUID.randomUUID(), mockMultipartFile));
+        assertEquals(ErrorCause.USER_NOT_FOUND, thrown.getErrorCause());
+        assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
 
     @Test
@@ -77,19 +76,6 @@ class UserServiceTest {
                 .getResourceAsStream("static/defaultAvatar.png")).readAllBytes();
         MockMultipartFile mockMultipartFileForNewAvatar = new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewAvatar)).thenReturn(expectedImgBytes);
-        // mocked postMapper set up
-        when(postMapper.toUserPostsDto(Collections.emptySet())).thenReturn(Collections.emptySet());
-        // mocked userMapper set up
-        ImgDto avatarDto = new ImgDto(null, expectedImgBytes, null);
-        when(userMapper.userToUserPageDto(expectedUser, Collections.emptySet())).thenReturn(new UserPageDto(
-                expectedUser.getId().toString(),
-                expectedUser.getName(),
-                expectedUser.getSurname(),
-                avatarDto,
-                null,
-                expectedUser.getBirthday(),
-                Set.of(avatarDto),
-                Collections.emptySet()));
         // when
         UserPageDto actualUserPageDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
         // then
@@ -128,19 +114,6 @@ class UserServiceTest {
                 .getResourceAsStream("static/img.png")).readAllBytes();
         MockMultipartFile mockMultipartFileForNewAvatar = new MockMultipartFile("img.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewAvatar)).thenReturn(expectedImgBytes);
-        // mocked postMapper set up
-        when(postMapper.toUserPostsDto(Collections.emptySet())).thenReturn(Collections.emptySet());
-        // mocked userMapper set up
-        ImgDto avatarDto = new ImgDto(null, expectedImgBytes, null);
-        when(userMapper.userToUserPageDto(expectedUser, Collections.emptySet())).thenReturn(new UserPageDto(
-                expectedUser.getId().toString(),
-                expectedUser.getName(),
-                expectedUser.getSurname(),
-                avatarDto,
-                null,
-                expectedUser.getBirthday(),
-                Set.of(avatarDto),
-                Collections.emptySet()));
         // when
         UserPageDto actualUserPageDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
         // then
@@ -151,21 +124,16 @@ class UserServiceTest {
         assertEquals(1, actualUserPageDto.images().size());
     }
 
-    // userService.updateCover() tests
     @Test
     void ifUserNotFoundWhenTryingToUpdateCover() {
         // given
-        UUID userId = UUID.randomUUID();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("defaultAvatar.png", (byte[]) null);
-        when(userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)).thenThrow(
-                new OnLineException("User not found, userId: " + userId,
-                        ErrorCause.USER_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
         // when
         // then
-        Assertions.assertThrows(OnLineException.class,
-                () -> userService.updateCover(userId, mockMultipartFile),
-                "User not found, userId: " + userId);
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> userService.updateCover(UUID.randomUUID(), mockMultipartFile));
+        assertEquals(ErrorCause.USER_NOT_FOUND, thrown.getErrorCause());
+        assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
 
     @Test
@@ -188,19 +156,6 @@ class UserServiceTest {
                 .getResourceAsStream("static/defaultAvatar.png")).readAllBytes();
         MockMultipartFile mockMultipartFileForNewCover = new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewCover)).thenReturn(expectedImgBytes);
-        // mocked postMapper set up
-        when(postMapper.toUserPostsDto(Collections.emptySet())).thenReturn(Collections.emptySet());
-        // mocked userMapper set up
-        ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
-        when(userMapper.userToUserPageDto(expectedUser, Collections.emptySet())).thenReturn(new UserPageDto(
-                expectedUser.getId().toString(),
-                expectedUser.getName(),
-                expectedUser.getSurname(),
-                null,
-                coverDto,
-                expectedUser.getBirthday(),
-                Set.of(coverDto),
-                Collections.emptySet()));
         // when
         UserPageDto actualUserPageDto = userService.updateCover(userId, mockMultipartFileForNewCover);
         // then
@@ -239,19 +194,6 @@ class UserServiceTest {
                 .getResourceAsStream("static/img.png")).readAllBytes();
         MockMultipartFile mockMultipartFileForNewCover = new MockMultipartFile("img.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewCover)).thenReturn(expectedImgBytes);
-        // mocked postMapper set up
-        when(postMapper.toUserPostsDto(Collections.emptySet())).thenReturn(Collections.emptySet());
-        // mocked userMapper set up
-        ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
-        when(userMapper.userToUserPageDto(expectedUser, Collections.emptySet())).thenReturn(new UserPageDto(
-                expectedUser.getId().toString(),
-                expectedUser.getName(),
-                expectedUser.getSurname(),
-                null,
-                coverDto,
-                expectedUser.getBirthday(),
-                Set.of(coverDto),
-                Collections.emptySet()));
         // when
         UserPageDto actualUserPageDto = userService.updateCover(userId, mockMultipartFileForNewCover);
         // then
@@ -262,19 +204,11 @@ class UserServiceTest {
         assertEquals(1, actualUserPageDto.images().size());
     }
 
-    // userService.getUserPage() method tests
     @Test
     void ifUserNotFoundWhenTryingToGetUserPage() {
-        // given
-        UUID userId = UUID.randomUUID();
-        when(userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)).thenThrow(
-                new OnLineException("User not found, userId: " + userId,
-                        ErrorCause.USER_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
-        // when
-        // then
-        Assertions.assertThrows(OnLineException.class,
-                () -> userService.getUserPage(userId), "User not found, userId: " + userId);
+        OnLineException thrown = assertThrows(OnLineException.class, () -> userService.getUserPage(UUID.randomUUID()));
+        assertEquals(ErrorCause.USER_NOT_FOUND, thrown.getErrorCause());
+        assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
 
     @Test
@@ -292,18 +226,6 @@ class UserServiceTest {
                 .posts(Collections.emptySet())
                 .build();
         when(userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)).thenReturn(Optional.of(expectedUser));
-        // mocked postMapper set up
-        when(postMapper.toUserPostsDto(Collections.emptySet())).thenReturn(Collections.emptySet());
-        // mocked userMapper set up
-        when(userMapper.userToUserPageDto(expectedUser, Collections.emptySet())).thenReturn(new UserPageDto(
-                expectedUser.getId().toString(),
-                expectedUser.getName(),
-                expectedUser.getSurname(),
-                null,
-                null,
-                expectedUser.getBirthday(),
-                Collections.emptySet(),
-                Collections.emptySet()));
         // then
         UserPageDto actualUserPageDto = userService.getUserPage(userId);
         // when

@@ -58,6 +58,8 @@ public class Community extends AbstractEntity {
 
     //they're also used by mapper
     public Img getAvatar() {
+        if (images == null)
+            return null;
         return images.stream()
                 .filter(Img::isAvatar)
                 .findFirst()
@@ -65,6 +67,8 @@ public class Community extends AbstractEntity {
     }
 
     public Img getCover() {
+        if (images == null)
+            return null;
         return images.stream()
                 .filter(Img::isCover)
                 .findFirst()

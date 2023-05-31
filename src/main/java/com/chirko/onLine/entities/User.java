@@ -97,13 +97,17 @@ public class User extends AbstractEntity implements UserDetails {
 
     //they're also used by mapper
     public Img getAvatar() {
-            return images.stream()
-                    .filter(Img::isAvatar)
-                    .findFirst()
-                    .orElse(null);
+        if (images == null)
+            return null;
+        return images.stream()
+                .filter(Img::isAvatar)
+                .findFirst()
+                .orElse(null);
     }
 
     public Img getCover() {
+        if (images == null)
+            return null;
         return images.stream()
                 .filter(Img::isCover)
                 .findFirst()

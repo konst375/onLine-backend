@@ -143,6 +143,12 @@ public class CommunityService {
         return userMapper.toBaseUsersDto(followers);
     }
 
+    public Set<User> getModerators(UUID communityId) {
+        return communityRepo.findModeratorsById(communityId)
+                .orElseThrow(() -> new OnLineException("Community not found, communityId: " + communityId,
+                        ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
+    }
+
     private Community getCommunityAndCheckUserAccess(UUID communityId, User user) {
         Community community = communityRepo.findByIdAndFetchAllDependencies(communityId)
                 .orElseThrow(() -> new OnLineException(

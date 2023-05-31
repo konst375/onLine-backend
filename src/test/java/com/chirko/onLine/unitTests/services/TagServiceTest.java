@@ -9,6 +9,7 @@ import com.chirko.onLine.repos.TagRepo;
 import com.chirko.onLine.services.TagService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.AdditionalAnswers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,12 +38,8 @@ class TagServiceTest {
         String tagName = "#Test";
         when(tagRepo.notExistsByTagName(tagName)).thenReturn(true);
         RQPostDto rqPostDto = new RQPostDto(textPostText, Collections.emptySet());
-        Set<String> expectedTags = Set.of(tagName);
-        when(tagRepo.save(any(Tag.class)))
-                .thenReturn(Tag.builder()
-                        .posts(Set.of(expectedPost))
-                        .tagName(tagName)
-                        .build());
+        Set<String> expectedTagNames = Set.of(tagName);
+        when(tagRepo.save(any(Tag.class))).then(AdditionalAnswers.returnsFirstArg());
         // when
         Set<Tag> actualTags = tagService.getPostTags(expectedPost, rqPostDto);
         // then
@@ -56,7 +53,7 @@ class TagServiceTest {
         Set<String> actualTagNames = actualTags.stream()
                 .map(Tag::getTagName)
                 .collect(Collectors.toSet());
-        assertEquals(expectedTags, actualTagNames);
+        assertEquals(expectedTagNames, actualTagNames);
     }
 
     @Test
@@ -68,7 +65,7 @@ class TagServiceTest {
         String tagName = "#Test";
         when(tagRepo.notExistsByTagName(tagName)).thenReturn(false);
         RQPostDto rqPostDto = new RQPostDto(textPostText, Collections.emptySet());
-        Set<String> expectedTags = Set.of(tagName);
+        Set<String> expectedTagNames = Set.of(tagName);
         Set<Post> postSet = new HashSet<>();
         postSet.add(expectedPost);
         Tag existedTag = Tag.builder()
@@ -90,7 +87,7 @@ class TagServiceTest {
         Set<String> actualTagNames = actualTags.stream()
                 .map(Tag::getTagName)
                 .collect(Collectors.toSet());
-        assertEquals(expectedTags, actualTagNames);
+        assertEquals(expectedTagNames, actualTagNames);
     }
 
     @Test
@@ -114,12 +111,8 @@ class TagServiceTest {
         when(tagRepo.notExistsByTagName(tagName)).thenReturn(true);
         RQRegisterCommunityDto rqRegisterCommunityDto =
                 new RQRegisterCommunityDto(null, null, null, communityTags);
-        Set<String> expectedTags = Set.of(tagName);
-        when(tagRepo.save(any(Tag.class)))
-                .thenReturn(Tag.builder()
-                        .communities(Set.of(expectedCommunity))
-                        .tagName(tagName)
-                        .build());
+        Set<String> expectedTagNames = Set.of(tagName);
+        when(tagRepo.save(any(Tag.class))).then(AdditionalAnswers.returnsFirstArg());
         // when
         Set<Tag> actualTags = tagService.getCommunityTags(expectedCommunity, rqRegisterCommunityDto);
         // then
@@ -133,7 +126,7 @@ class TagServiceTest {
         Set<String> actualTagNames = actualTags.stream()
                 .map(Tag::getTagName)
                 .collect(Collectors.toSet());
-        assertEquals(expectedTags, actualTagNames);
+        assertEquals(expectedTagNames, actualTagNames);
     }
 
     @Test
@@ -146,7 +139,7 @@ class TagServiceTest {
         when(tagRepo.notExistsByTagName(tagName)).thenReturn(false);
         RQRegisterCommunityDto rqRegisterCommunityDto =
                 new RQRegisterCommunityDto(null, null, null, communityTags);
-        Set<String> expectedTags = Set.of(tagName);
+        Set<String> expectedTagNames = Set.of(tagName);
         Set<Community> communitiesSet = new HashSet<>();
         communitiesSet.add(expectedCommunity);
         Tag existedTag = Tag.builder()
@@ -167,7 +160,7 @@ class TagServiceTest {
         Set<String> actualTagNames = actualTags.stream()
                 .map(Tag::getTagName)
                 .collect(Collectors.toSet());
-        assertEquals(expectedTags, actualTagNames);
+        assertEquals(expectedTagNames, actualTagNames);
     }
 
     @Test

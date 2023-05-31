@@ -38,4 +38,11 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             """)
     @EntityGraph(value = "Community.dependencies")
     Optional<Community> findByIdAndFetchAllDependencies(@Param("id") UUID id);
+
+    @Query("""
+            SELECT c.moderators
+            FROM Community c
+            WHERE c.id = :id
+            """)
+    Optional<Set<User>> findModeratorsById(@Param("id") UUID id);
 }

@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -74,16 +74,17 @@ class UserServiceTest {
         // expected avatar creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass().getClassLoader()
                 .getResourceAsStream("static/defaultAvatar.png")).readAllBytes();
-        MockMultipartFile mockMultipartFileForNewAvatar = new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
+        MockMultipartFile mockMultipartFileForNewAvatar =
+                new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewAvatar)).thenReturn(expectedImgBytes);
         // when
-        UserPageDto actualUserPageDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
+        UserPageDto actualDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
         // then
-        assertEquals(expectedUser.getName(), actualUserPageDto.name());
-        assertEquals(expectedUser.getSurname(), actualUserPageDto.surname());
-        assertEquals(expectedUser.getBirthday(), actualUserPageDto.birthday());
-        assertArrayEquals(expectedImgBytes, actualUserPageDto.avatar().img());
-        assertEquals(1, actualUserPageDto.images().size());
+        assertEquals(expectedUser.getName(), actualDto.name());
+        assertEquals(expectedUser.getSurname(), actualDto.surname());
+        assertEquals(expectedUser.getBirthday(), actualDto.birthday());
+        assertArrayEquals(expectedImgBytes, actualDto.avatar().img());
+        assertEquals(1, actualDto.images().size());
     }
 
     @Test
@@ -115,13 +116,13 @@ class UserServiceTest {
         MockMultipartFile mockMultipartFileForNewAvatar = new MockMultipartFile("img.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewAvatar)).thenReturn(expectedImgBytes);
         // when
-        UserPageDto actualUserPageDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
+        UserPageDto actualDto = userService.updateAvatar(userId, mockMultipartFileForNewAvatar);
         // then
-        assertEquals(expectedUser.getName(), actualUserPageDto.name());
-        assertEquals(expectedUser.getSurname(), actualUserPageDto.surname());
-        assertEquals(expectedUser.getBirthday(), actualUserPageDto.birthday());
-        assertArrayEquals(expectedImgBytes, actualUserPageDto.avatar().img());
-        assertEquals(1, actualUserPageDto.images().size());
+        assertEquals(expectedUser.getName(), actualDto.name());
+        assertEquals(expectedUser.getSurname(), actualDto.surname());
+        assertEquals(expectedUser.getBirthday(), actualDto.birthday());
+        assertArrayEquals(expectedImgBytes, actualDto.avatar().img());
+        assertEquals(1, actualDto.images().size());
     }
 
     @Test
@@ -154,16 +155,17 @@ class UserServiceTest {
         // expected cover creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass().getClassLoader()
                 .getResourceAsStream("static/defaultAvatar.png")).readAllBytes();
-        MockMultipartFile mockMultipartFileForNewCover = new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
+        MockMultipartFile mockMultipartFileForNewCover =
+                new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewCover)).thenReturn(expectedImgBytes);
         // when
-        UserPageDto actualUserPageDto = userService.updateCover(userId, mockMultipartFileForNewCover);
+        UserPageDto actualDto = userService.updateCover(userId, mockMultipartFileForNewCover);
         // then
-        assertEquals(expectedUser.getName(), actualUserPageDto.name());
-        assertEquals(expectedUser.getSurname(), actualUserPageDto.surname());
-        assertEquals(expectedUser.getBirthday(), actualUserPageDto.birthday());
-        assertArrayEquals(expectedImgBytes, actualUserPageDto.cover().img());
-        assertEquals(1, actualUserPageDto.images().size());
+        assertEquals(expectedUser.getName(), actualDto.name());
+        assertEquals(expectedUser.getSurname(), actualDto.surname());
+        assertEquals(expectedUser.getBirthday(), actualDto.birthday());
+        assertArrayEquals(expectedImgBytes, actualDto.cover().img());
+        assertEquals(1, actualDto.images().size());
     }
 
     @Test
@@ -195,13 +197,13 @@ class UserServiceTest {
         MockMultipartFile mockMultipartFileForNewCover = new MockMultipartFile("img.png", expectedImgBytes);
         when(imgService.getBytes(mockMultipartFileForNewCover)).thenReturn(expectedImgBytes);
         // when
-        UserPageDto actualUserPageDto = userService.updateCover(userId, mockMultipartFileForNewCover);
+        UserPageDto actualDto = userService.updateCover(userId, mockMultipartFileForNewCover);
         // then
-        assertEquals(expectedUser.getName(), actualUserPageDto.name());
-        assertEquals(expectedUser.getSurname(), actualUserPageDto.surname());
-        assertEquals(expectedUser.getBirthday(), actualUserPageDto.birthday());
-        assertArrayEquals(expectedImgBytes, actualUserPageDto.cover().img());
-        assertEquals(1, actualUserPageDto.images().size());
+        assertEquals(expectedUser.getName(), actualDto.name());
+        assertEquals(expectedUser.getSurname(), actualDto.surname());
+        assertEquals(expectedUser.getBirthday(), actualDto.birthday());
+        assertArrayEquals(expectedImgBytes, actualDto.cover().img());
+        assertEquals(1, actualDto.images().size());
     }
 
     @Test
@@ -227,13 +229,21 @@ class UserServiceTest {
                 .build();
         when(userRepo.findByIdAndFetchUserImagesAndPostsEagerly(userId)).thenReturn(Optional.of(expectedUser));
         // then
-        UserPageDto actualUserPageDto = userService.getUserPage(userId);
+        UserPageDto actualDto = userService.getUserPage(userId);
         // when
-        assertEquals(userId.toString(), actualUserPageDto.id());
-        assertEquals(expectedUser.getName(), actualUserPageDto.name());
-        assertEquals(expectedUser.getSurname(), actualUserPageDto.surname());
-        assertEquals(expectedUser.getBirthday(), actualUserPageDto.birthday());
-        assertEquals(0, actualUserPageDto.images().size());
-        assertEquals(0, actualUserPageDto.posts().size());
+        assertEquals(userId.toString(), actualDto.id());
+        assertEquals(expectedUser.getName(), actualDto.name());
+        assertEquals(expectedUser.getSurname(), actualDto.surname());
+        assertEquals(expectedUser.getBirthday(), actualDto.birthday());
+        assertEquals(0, actualDto.images().size());
+        assertEquals(0, actualDto.posts().size());
+    }
+
+    @Test
+    void ifDeleteUser() {
+        // when
+        userService.deleteUser(User.builder().build());
+        // then
+        verify(userRepo, times(1)).delete(any(User.class));
     }
 }

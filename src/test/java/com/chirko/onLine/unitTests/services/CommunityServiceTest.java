@@ -21,6 +21,7 @@ import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.TagService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.AdditionalAnswers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -77,9 +78,9 @@ class CommunityServiceTest {
                 .tags(tags)
                 .images(Collections.emptySet())
                 .build();
-        when(communityRepo.save(any(Community.class))).thenReturn(expectedCommunity);
+        when(communityRepo.save(any(Community.class))).then(AdditionalAnswers.returnsFirstArg());
 
-        BaseCommunityDto expectedCommunityDto =
+        BaseCommunityDto expectedDto =
                 new BaseCommunityDto(
                         null,
                         expectedCommunity.getName(),
@@ -87,9 +88,9 @@ class CommunityServiceTest {
                         null,
                         Set.of(new TagDto(tagName)));
         // when
-        BaseCommunityDto actualCommunityDto = communityService.createCommunity(user, rqRegisterCommunityDto);
+        BaseCommunityDto actualDto = communityService.createCommunity(user, rqRegisterCommunityDto);
         // then
-        assertEquals(expectedCommunityDto, actualCommunityDto);
+        assertEquals(expectedDto, actualDto);
         assertEquals(Role.ADMIN, user.getRole());
     }
 
@@ -126,9 +127,9 @@ class CommunityServiceTest {
                 .img(expectedImgBytes)
                 .build();
         expectedCommunity.setImages(Set.of(avatar));
-        when(communityRepo.save(any(Community.class))).thenReturn(expectedCommunity);
+        when(communityRepo.save(any(Community.class))).then(AdditionalAnswers.returnsFirstArg());
 
-        BaseCommunityDto expectedCommunityDto = new BaseCommunityDto(
+        BaseCommunityDto expectedDto = new BaseCommunityDto(
                 null,
                 expectedCommunity.getName(),
                 expectedCommunity.getSubject(),
@@ -137,18 +138,19 @@ class CommunityServiceTest {
 
         when(imgService.buildCommunityAvatar(eq(mockMultipartFile), any(Community.class))).thenReturn(avatar);
         // when
-        BaseCommunityDto actualCommunityDto = communityService.createCommunity(user, rqRegisterCommunityDto);
+        BaseCommunityDto actualDto = communityService.createCommunity(user, rqRegisterCommunityDto);
         // then
-        assertEquals(expectedCommunityDto.name(), actualCommunityDto.name());
-        assertEquals(expectedCommunityDto.subject(), actualCommunityDto.subject());
-        assertArrayEquals(expectedCommunityDto.avatar().img(), actualCommunityDto.avatar().img());
-        assertEquals(expectedCommunityDto.tags(), actualCommunityDto.tags());
+        assertEquals(expectedDto.name(), actualDto.name());
+        assertEquals(expectedDto.subject(), actualDto.subject());
+        assertArrayEquals(expectedDto.avatar().img(), actualDto.avatar().img());
+        assertEquals(expectedDto.tags(), actualDto.tags());
         assertEquals(Role.ADMIN, user.getRole());
     }
 
     @Test
     void ifGetCommunityPageAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.getCommunityPage(UUID.randomUUID()));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.getCommunityPage(UUID.randomUUID()));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -198,28 +200,29 @@ class CommunityServiceTest {
                         baseCommunityDto,
                         new BasePostDto(post.getId().toString(), null, null, null, null)))
                 .collect(Collectors.toSet());
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
                 imgDtoSet,
                 communityPostDtoSet);
         // when
-        CommunityPageDto actualCommunityPage = communityService.getCommunityPage(communityId);
+        CommunityPageDto actualDto = communityService.getCommunityPage(communityId);
         // then
-        assertEquals(expectedCommunityPageDto, actualCommunityPage);
+        assertEquals(expectedDto, actualDto);
     }
 
     @Test
     void ifGetCommunityAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.getCommunity(UUID.randomUUID()));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.getCommunity(UUID.randomUUID()));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
 
     @Test
     void ifUpdateAvatarAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.updateAvatar(
-                UUID.randomUUID(), null, null));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.updateAvatar(UUID.randomUUID(), null, null));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -256,22 +259,22 @@ class CommunityServiceTest {
                 expectedCommunity.getSubject(),
                 new ImgDto(null, expectedImgBytes, null),
                 null);
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
                 Set.of(new ImgDto(null, expectedImgBytes, null)),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
+        CommunityPageDto actualDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
         // then
-        assertEquals(expectedCommunityPageDto.community().id(), actualCommunityPageDto.community().id());
-        assertEquals(expectedCommunityPageDto.community().name(), actualCommunityPageDto.community().name());
-        assertEquals(expectedCommunityPageDto.community().subject(), actualCommunityPageDto.community().subject());
-        assertArrayEquals(expectedCommunityPageDto.community().avatar().img(), actualCommunityPageDto.community().avatar().img());
-        assertEquals(expectedCommunityPageDto.community().tags(), actualCommunityPageDto.community().tags());
-        assertEquals(expectedCommunityPageDto.cover(), actualCommunityPageDto.cover());
-        assertEquals(1, actualCommunityPageDto.images().size());
-        assertEquals(expectedCommunityPageDto.posts(), actualCommunityPageDto.posts());
+        assertEquals(expectedDto.community().id(), actualDto.community().id());
+        assertEquals(expectedDto.community().name(), actualDto.community().name());
+        assertEquals(expectedDto.community().subject(), actualDto.community().subject());
+        assertArrayEquals(expectedDto.community().avatar().img(), actualDto.community().avatar().img());
+        assertEquals(expectedDto.community().tags(), actualDto.community().tags());
+        assertEquals(expectedDto.cover(), actualDto.cover());
+        assertEquals(1, actualDto.images().size());
+        assertEquals(expectedDto.posts(), actualDto.posts());
     }
 
     @Test
@@ -301,28 +304,28 @@ class CommunityServiceTest {
                 expectedCommunity.getSubject(),
                 new ImgDto(null, expectedImgBytes, null),
                 null);
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
                 Set.of(new ImgDto(null, expectedImgBytes, null)),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
+        CommunityPageDto actualDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
         // then
-        assertEquals(expectedCommunityPageDto.community().id(), actualCommunityPageDto.community().id());
-        assertEquals(expectedCommunityPageDto.community().name(), actualCommunityPageDto.community().name());
-        assertEquals(expectedCommunityPageDto.community().subject(), actualCommunityPageDto.community().subject());
-        assertArrayEquals(expectedCommunityPageDto.community().avatar().img(), actualCommunityPageDto.community().avatar().img());
-        assertEquals(expectedCommunityPageDto.community().tags(), actualCommunityPageDto.community().tags());
-        assertEquals(expectedCommunityPageDto.cover(), actualCommunityPageDto.cover());
-        assertEquals(1, actualCommunityPageDto.images().size());
-        assertEquals(expectedCommunityPageDto.posts(), actualCommunityPageDto.posts());
+        assertEquals(expectedDto.community().id(), actualDto.community().id());
+        assertEquals(expectedDto.community().name(), actualDto.community().name());
+        assertEquals(expectedDto.community().subject(), actualDto.community().subject());
+        assertArrayEquals(expectedDto.community().avatar().img(), actualDto.community().avatar().img());
+        assertEquals(expectedDto.community().tags(), actualDto.community().tags());
+        assertEquals(expectedDto.cover(), actualDto.cover());
+        assertEquals(1, actualDto.images().size());
+        assertEquals(expectedDto.posts(), actualDto.posts());
     }
 
     @Test
     void ifUpdateCoverAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.updateCover(
-                UUID.randomUUID(), null, null));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.updateCover(UUID.randomUUID(), null, null));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -344,7 +347,8 @@ class CommunityServiceTest {
     void ifUpdateCoverThatNotExistsAndAccessGranted() throws IOException {
         // given
         User user = User.builder().id(UUID.randomUUID()).build();
-        Community expectedCommunity = Community.builder().id(UUID.randomUUID()).admin(user).images(new HashSet<>()).build();
+        Community expectedCommunity =
+                Community.builder().id(UUID.randomUUID()).admin(user).images(new HashSet<>()).build();
         when(communityRepo.findByIdAndFetchAllDependencies(expectedCommunity.getId()))
                 .thenReturn(Optional.of(expectedCommunity));
 
@@ -360,22 +364,22 @@ class CommunityServiceTest {
                 null,
                 null);
         ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 coverDto,
                 Set.of(coverDto),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.updateCover(expectedCommunity.getId(), mockMultipartFile, user);
+        CommunityPageDto actualDto = communityService.updateCover(expectedCommunity.getId(), mockMultipartFile, user);
         // then
-        assertEquals(expectedCommunityPageDto.community().id(), actualCommunityPageDto.community().id());
-        assertEquals(expectedCommunityPageDto.community().name(), actualCommunityPageDto.community().name());
-        assertEquals(expectedCommunityPageDto.community().subject(), actualCommunityPageDto.community().subject());
-        assertEquals(expectedCommunityPageDto.community().avatar(), actualCommunityPageDto.community().avatar());
-        assertEquals(expectedCommunityPageDto.community().tags(), actualCommunityPageDto.community().tags());
-        assertArrayEquals(expectedCommunityPageDto.cover().img(), actualCommunityPageDto.cover().img());
-        assertEquals(1, actualCommunityPageDto.images().size());
-        assertEquals(expectedCommunityPageDto.posts(), actualCommunityPageDto.posts());
+        assertEquals(expectedDto.community().id(), actualDto.community().id());
+        assertEquals(expectedDto.community().name(), actualDto.community().name());
+        assertEquals(expectedDto.community().subject(), actualDto.community().subject());
+        assertEquals(expectedDto.community().avatar(), actualDto.community().avatar());
+        assertEquals(expectedDto.community().tags(), actualDto.community().tags());
+        assertArrayEquals(expectedDto.cover().img(), actualDto.cover().img());
+        assertEquals(1, actualDto.images().size());
+        assertEquals(expectedDto.posts(), actualDto.posts());
     }
 
     @Test
@@ -406,22 +410,22 @@ class CommunityServiceTest {
                 null,
                 null);
         ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 coverDto,
                 Set.of(coverDto),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.updateCover(expectedCommunity.getId(), mockMultipartFile, user);
+        CommunityPageDto actualDto = communityService.updateCover(expectedCommunity.getId(), mockMultipartFile, user);
         // then
-        assertEquals(expectedCommunityPageDto.community().id(), actualCommunityPageDto.community().id());
-        assertEquals(expectedCommunityPageDto.community().name(), actualCommunityPageDto.community().name());
-        assertEquals(expectedCommunityPageDto.community().subject(), actualCommunityPageDto.community().subject());
-        assertEquals(expectedCommunityPageDto.community().avatar(), actualCommunityPageDto.community().avatar());
-        assertEquals(expectedCommunityPageDto.community().tags(), actualCommunityPageDto.community().tags());
-        assertArrayEquals(expectedCommunityPageDto.cover().img(), actualCommunityPageDto.cover().img());
-        assertEquals(1, actualCommunityPageDto.images().size());
-        assertEquals(expectedCommunityPageDto.posts(), actualCommunityPageDto.posts());
+        assertEquals(expectedDto.community().id(), actualDto.community().id());
+        assertEquals(expectedDto.community().name(), actualDto.community().name());
+        assertEquals(expectedDto.community().subject(), actualDto.community().subject());
+        assertEquals(expectedDto.community().avatar(), actualDto.community().avatar());
+        assertEquals(expectedDto.community().tags(), actualDto.community().tags());
+        assertArrayEquals(expectedDto.cover().img(), actualDto.cover().img());
+        assertEquals(1, actualDto.images().size());
+        assertEquals(expectedDto.posts(), actualDto.posts());
     }
 
     @Test
@@ -471,8 +475,8 @@ class CommunityServiceTest {
 
     @Test
     void ifSubscribeAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.subscribe(
-                UUID.randomUUID(), null));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.subscribe(UUID.randomUUID(), null));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -488,22 +492,22 @@ class CommunityServiceTest {
                 .build();
         when(communityRepo.findByIdAndFetchAllDependencies(community.getId())).thenReturn(Optional.of(community));
 
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 new BaseCommunityDto(community.getId().toString(), null, null, null, null),
                 null,
                 Collections.emptySet(),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.subscribe(community.getId(), user);
+        CommunityPageDto actualDto = communityService.subscribe(community.getId(), user);
         // then
-        assertEquals(expectedCommunityPageDto, actualCommunityPageDto);
+        assertEquals(expectedDto, actualDto);
         assertEquals(1, community.getFollowers().size());
     }
 
     @Test
     void ifUnsubscribeAndCommunityNotFound() {
-        OnLineException thrown = assertThrows(OnLineException.class, () -> communityService.unsubscribe(
-                UUID.randomUUID(), null));
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.unsubscribe(UUID.randomUUID(), null));
         assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -520,15 +524,15 @@ class CommunityServiceTest {
         community.getFollowers().add(user);
         when(communityRepo.findByIdAndFetchAllDependencies(community.getId())).thenReturn(Optional.of(community));
 
-        CommunityPageDto expectedCommunityPageDto = new CommunityPageDto(
+        CommunityPageDto expectedDto = new CommunityPageDto(
                 new BaseCommunityDto(community.getId().toString(), null, null, null, null),
                 null,
                 Collections.emptySet(),
                 null);
         // when
-        CommunityPageDto actualCommunityPageDto = communityService.unsubscribe(community.getId(), user);
+        CommunityPageDto actualDto = communityService.unsubscribe(community.getId(), user);
         // then
-        assertEquals(expectedCommunityPageDto, actualCommunityPageDto);
+        assertEquals(expectedDto, actualDto);
         assertEquals(0, community.getFollowers().size());
     }
 
@@ -553,12 +557,32 @@ class CommunityServiceTest {
 
         when(imgService.findUserImages(any(User.class))).thenReturn(Collections.emptySet());
 
-        Set<BaseUserDto> expectedFollowerDtoSet = userSet.stream()
+        Set<BaseUserDto> expectedDtoSet = userSet.stream()
                 .map(user -> new BaseUserDto(user.getId().toString(), null, null, null))
                 .collect(Collectors.toSet());
         // when
-        Set<BaseUserDto> actualFollowerDtoSet = communityService.getFollowers(community.getId());
+        Set<BaseUserDto> actualDtoSet = communityService.getFollowers(community.getId());
         // then
-        assertEquals(expectedFollowerDtoSet, actualFollowerDtoSet);
+        assertEquals(expectedDtoSet, actualDtoSet);
+    }
+
+    @Test
+    void ifGetModeratorsAndCommunityNotFound() {
+        OnLineException thrown = assertThrows(OnLineException.class,
+                () -> communityService.getModerators(UUID.randomUUID()));
+        assertEquals(ErrorCause.COMMUNITY_NOT_FOUND, thrown.getErrorCause());
+        assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
+    }
+
+    @Test
+    void ifGetModerators() {
+        // given
+        UUID communityId = UUID.randomUUID();
+        Set<User> expectedModerators = Collections.emptySet();
+        when(communityRepo.findModeratorsById(communityId)).thenReturn(Optional.of(expectedModerators));
+        // when
+        Set<User> actualModerators = communityService.getModerators(communityId);
+        // then
+        assertEquals(expectedModerators, actualModerators);
     }
 }

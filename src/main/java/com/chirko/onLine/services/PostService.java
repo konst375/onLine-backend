@@ -38,8 +38,8 @@ public class PostService {
                 .build();
         post.setImages(getImages(dto, post));
         post.setTags(tagService.getPostTags(post, dto));
-        postRepo.save(post);
-        return postMapper.toUserPostDto(post);
+        Post savedPost = postRepo.save(post);
+        return postMapper.toUserPostDto(savedPost);
     }
 
     public CommunityPostDto createCommunityPost(UUID communityId, RQPostDto dto) {
@@ -50,8 +50,8 @@ public class PostService {
                 .build();
         post.setImages(getImages(dto, post));
         post.setTags(tagService.getPostTags(post, dto));
-        postRepo.save(post);
-        return postMapper.toCommunityPostDto(post);
+        Post savedPost = postRepo.save(post);
+        return postMapper.toCommunityPostDto(savedPost);
     }
 
     public Post getById(UUID postId) {
@@ -64,7 +64,9 @@ public class PostService {
 
     public UserPostDto findPostByIdAndFetchImagesAndTagsEagerly(UUID postId) {
         Post post = postRepo.findByIdAndFetchTagsAndImagesEagerly(postId)
-                .orElseThrow(() -> new OnLineException("Post not found, postId: " + postId, ErrorCause.POST_NOT_FOUND,
+                .orElseThrow(() -> new OnLineException(
+                        "Post not found, postId: " + postId,
+                        ErrorCause.POST_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
         post.getUser().setImages(postRepo.findUserImagesByPost(postId).orElse(null));
         return postMapper.toUserPostDto(post);
@@ -75,11 +77,21 @@ public class PostService {
         postRepo.delete(post);
     }
 
+    public BasePostDto toDto(Post post) {
+        return postMapper.toBasePostDto(post);
+    }
+
     private Post getPostAndCheckUserAccess(User user, UUID postId) {
+        OnLineException exception = new OnLineException("Post editing permission denied, userId: " + user.getId(),
+                ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
         Post post = getById(postId);
-        if (!post.getUser().equals(user)) {
-            throw new OnLineException("Post editing permission denied, userId: " + user.getId(),
-                    ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
+        if (post.getCommunity() != null) {
+            if (!post.getCommunity().getAdmin().equals(user)
+                    && !communityService.getModerators(post.getCommunity().getId()).contains(user))
+                throw exception;
+        } else {
+            if (!post.getUser().equals(user))
+                throw exception;
         }
         return post;
     }
@@ -96,9 +108,5 @@ public class PostService {
                         .img(bytes)
                         .build())
                 .collect(Collectors.toSet());
-    }
-
-    public BasePostDto toDto(Post post) {
-        return postMapper.toBasePostDto(post);
     }
 }

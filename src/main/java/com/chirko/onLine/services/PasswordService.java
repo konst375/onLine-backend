@@ -33,14 +33,17 @@ public class PasswordService {
 
     @Transactional
     public void updatePassword(UUID userId, String password) {
-        userRepo.findById(userId).orElseThrow(() -> new OnLineException("User not found, userId: " + userId,
-                ErrorCause.USER_NOT_FOUND, HttpStatus.NOT_FOUND)).setPassword(passwordEncoder.encode(password));
+        userRepo.findById(userId).orElseThrow(() -> new OnLineException(
+                        "User not found, userId: " + userId,
+                        ErrorCause.USER_NOT_FOUND,
+                        HttpStatus.NOT_FOUND))
+                .setPassword(passwordEncoder.encode(password));
     }
 
     @Transactional
     public AuthenticationResponseDto saveResetPassword(@Valid RQResetUserPasswordDto dto) {
         String token = dto.getToken();
-        otpService.validateToken(token);
+        validateToken(token);
         User user = otpService.extractUser(token);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         applicationEventPublisher.publishEvent(new OnSuccessfulPasswordResetEvent(user));
@@ -49,10 +52,16 @@ public class PasswordService {
     }
 
     public void resetPassword(String email) {
-        User user = userRepo.findByEmail(email).orElseThrow(() ->
-                new OnLineException("User with this email does not exist, email: " + email, ErrorCause.USER_NOT_FOUND,
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new OnLineException(
+                        "User with this email does not exist, email: " + email,
+                        ErrorCause.USER_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
         String token = otpService.getCommonToken(user);
         applicationEventPublisher.publishEvent(new OnPasswordResetRequestEvent(user, token));
+    }
+
+    public void validateToken(String token) {
+        otpService.validateToken(token);
     }
 }

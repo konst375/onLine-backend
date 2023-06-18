@@ -1,6 +1,7 @@
 package com.chirko.onLine.controllers;
 
 import com.chirko.onLine.dto.request.RQPostDto;
+import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
 import com.chirko.onLine.entities.User;
@@ -35,8 +36,8 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserPostDto> getPost(@PathVariable(name = "id") UUID postId) {
-        UserPostDto response = postService.findPostByIdAndFetchImagesAndTagsEagerly(postId);
+    public ResponseEntity<BasePostDto> getPost(@PathVariable(name = "id") UUID postId) {
+        BasePostDto response = postService.findPostByIdWithTagsAndImages(postId);
         return ResponseEntity.ok(response);
     }
 

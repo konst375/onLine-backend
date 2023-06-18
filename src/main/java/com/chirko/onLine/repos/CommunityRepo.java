@@ -28,16 +28,16 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             FROM Community c
             WHERE c.id = :id
             """)
-    @EntityGraph(attributePaths = {"images"})
-    Optional<Community> findByIdAndFetchImagesEagerly(@Param("id") UUID id);
+    @EntityGraph(value = "Community-with-tags-and-images")
+    Optional<Community> findByIdWithTagsAndImages(@Param("id") UUID id);
 
     @Query("""
             SELECT c
             FROM Community c
             WHERE c.id = :id
             """)
-    @EntityGraph(value = "Community.dependencies")
-    Optional<Community> findByIdAndFetchAllDependencies(@Param("id") UUID id);
+    @EntityGraph(value = "Community-with-dependencies")
+    Optional<Community> findByIdAndFetchAllDependenciesWithoutPosts(@Param("id") UUID id);
 
     @Query("""
             SELECT c.moderators
@@ -45,4 +45,12 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             WHERE c.id = :id
             """)
     Optional<Set<User>> findModeratorsById(@Param("id") UUID id);
+
+    @Query("""
+            SELECT c
+            FROM Community c
+            WHERE c.id = :id
+            """)
+    @EntityGraph(value = "Community-with-posts")
+    Optional<Community> findCommunityWithPostsAndTheirImagesAndTags(@Param("id") UUID id);
 }

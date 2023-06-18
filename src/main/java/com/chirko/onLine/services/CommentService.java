@@ -33,25 +33,25 @@ public class CommentService {
     public CommentDto addPostComment(UUID postId, User user, RQCommentDto dto) {
         Comment comment = buildComment(user, dto);
         comment.setPost(postService.getById(postId));
-        commentRepo.save(comment);
-        comment.getUser().setImages(commentRepo.findUserImages(comment)
+        Comment savedComment = commentRepo.save(comment);
+        savedComment.getUser().setImages(commentRepo.findUserImages(savedComment)
                 .orElseThrow(() -> new OnLineException(
                         "User not found, userId: " + user.getId(),
                         ErrorCause.USER_NOT_FOUND,
                         HttpStatus.NOT_FOUND)));
-        return commentMapper.toDto(comment);
+        return commentMapper.toDto(savedComment);
     }
 
     public CommentDto addImgComment(UUID imgId, User user, RQCommentDto dto) {
         Comment comment = buildComment(user, dto);
         comment.setImg(imgService.getById(imgId));
-        commentRepo.save(comment);
-        comment.getUser().setImages(commentRepo.findUserImages(comment)
+        Comment savedComment = commentRepo.save(comment);
+        savedComment.getUser().setImages(commentRepo.findUserImages(savedComment)
                 .orElseThrow(() -> new OnLineException(
                         "User not found, userId: " + user.getId(),
                         ErrorCause.USER_NOT_FOUND,
                         HttpStatus.NOT_FOUND)));
-        return commentMapper.toDto(comment);
+        return commentMapper.toDto(savedComment);
     }
 
     public Set<CommentDto> getPostComments(UUID postId) {
@@ -76,22 +76,24 @@ public class CommentService {
 
     public void deleteComment(UUID commentId, User user) {
         Comment comment = getById(commentId);
-        if (comment.getPost() != null && !comment.getPost().getUser().equals(user) || comment.getImg() != null && !comment.getImg().getUser().equals(user)) {
-            checkUserAccess(comment, user);
-        }
+        checkUserAccess(comment, user);
         commentRepo.delete(comment);
     }
 
     private void checkUserAccess(Comment comment, User user) {
         if (!comment.getUser().equals(user)) {
-            throw new OnLineException("Comment updating permission denied, userId: " + user.getId(),
-                    ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
+            throw new OnLineException(
+                    "Comment updating permission denied, userId: " + user.getId(),
+                    ErrorCause.ACCESS_DENIED,
+                    HttpStatus.FORBIDDEN);
         }
     }
 
     private Comment getById(UUID commentId) {
-        return commentRepo.findById(commentId).orElseThrow(() -> new OnLineException("Comment not found, commentId: " +
-                commentId, ErrorCause.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND));
+        return commentRepo.findById(commentId).orElseThrow(() -> new OnLineException(
+                "Comment not found, commentId: " +
+                commentId, ErrorCause.COMMENT_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
     }
 
     private Comment buildComment(User user, RQCommentDto dto) {
@@ -101,7 +103,9 @@ public class CommentService {
                 .build();
     }
 
-    public Comment getComment(UUID commentId) {
-        return getById(commentId);
+    public Comment getCommentWithUserImages(UUID commentId) {
+        Comment comment = getById(commentId);
+        comment.getUser().setImages(commentRepo.findUserImages(comment).orElse(null));
+        return comment;
     }
 }

@@ -40,7 +40,7 @@ public class LikeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> unlike(@PathVariable(name = "id") UUID id) {
-        likeService.deleteParentId(id);
+        likeService.unlike(id);
         return ResponseEntity.ok("Successful unliked");
     }
 }

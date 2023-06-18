@@ -9,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -36,5 +37,5 @@ public interface CommentRepo extends CrudRepository<Comment, UUID> {
             FROM Comment c
             WHERE c = :comment
             """)
-    Optional<Set<Img>> findUserImages(@Param("comment") Comment comment);
+    Optional<List<Img>> findUserImages(@Param("comment") Comment comment);
 }

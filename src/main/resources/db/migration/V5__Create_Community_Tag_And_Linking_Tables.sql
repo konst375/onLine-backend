@@ -11,7 +11,7 @@ CREATE TABLE community
 CREATE TABLE tag
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tag_name      TEXT      NOT NULL,
+    tag_name      TEXT      NOT NULL UNIQUE,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL
 );

@@ -14,7 +14,7 @@ import java.util.Set;
 public interface PostMapper {
     BasePostDto toBasePostDto(Post entity);
 
-    Set<BasePostDto> toBasePostsDto(Set<Post> images);
+    Set<BasePostDto> toBasePostsDto(Set<Post> posts);
 
     @Mapping(target = "post", source = "entity")
     UserPostDto toUserPostDto(Post entity);

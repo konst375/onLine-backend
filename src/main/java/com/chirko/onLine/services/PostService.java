@@ -6,20 +6,18 @@ import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
 import com.chirko.onLine.entities.Community;
-import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.PostRepo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -31,27 +29,19 @@ public class PostService {
     private final PostRepo postRepo;
 
     public UserPostDto createUserPost(User user, RQPostDto dto) {
+        Post post = buildPost(dto);
+        post.getImages().forEach(img -> img.setPost(post));
         user.setImages(imgService.findUserImages(user));
-        Post post = Post.builder()
-                .user(user)
-                .text(dto.getText())
-                .build();
-        post.setImages(getImages(dto, post));
-        post.setTags(tagService.getPostTags(post, dto));
-        Post savedPost = postRepo.save(post);
-        return postMapper.toUserPostDto(savedPost);
+        post.setUser(user);
+        return postMapper.toUserPostDto(postRepo.save(post));
     }
 
     public CommunityPostDto createCommunityPost(UUID communityId, RQPostDto dto) {
+        Post post = buildPost(dto);
+        post.getImages().forEach(img -> img.setPost(post));
         Community community = communityService.getCommunity(communityId);
-        Post post = Post.builder()
-                .community(community)
-                .text(dto.getText())
-                .build();
-        post.setImages(getImages(dto, post));
-        post.setTags(tagService.getPostTags(post, dto));
-        Post savedPost = postRepo.save(post);
-        return postMapper.toCommunityPostDto(savedPost);
+        post.setCommunity(community);
+        return postMapper.toCommunityPostDto(postRepo.save(post));
     }
 
     public Post getById(UUID postId) {
@@ -62,14 +52,18 @@ public class PostService {
                         HttpStatus.NOT_FOUND));
     }
 
-    public UserPostDto findPostByIdAndFetchImagesAndTagsEagerly(UUID postId) {
-        Post post = postRepo.findByIdAndFetchTagsAndImagesEagerly(postId)
+    public Post findPostWithTagsAndImages(UUID postId) {
+        Post post = postRepo.findByIdWithTagsAndImages(postId)
                 .orElseThrow(() -> new OnLineException(
                         "Post not found, postId: " + postId,
                         ErrorCause.POST_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
-        post.getUser().setImages(postRepo.findUserImagesByPost(postId).orElse(null));
-        return postMapper.toUserPostDto(post);
+        post.setImages(Lists.newArrayList(Sets.newLinkedHashSet(post.getImages())));
+        return post;
+    }
+
+    public BasePostDto findPostByIdWithTagsAndImages(UUID postId) {
+        return postMapper.toBasePostDto(findPostWithTagsAndImages(postId));
     }
 
     public void deletePost(User user, UUID postId) {
@@ -81,9 +75,19 @@ public class PostService {
         return postMapper.toBasePostDto(post);
     }
 
+    private Post buildPost(RQPostDto dto) {
+        return Post.builder()
+                .text(dto.getText())
+                .tags(tagService.createTags(dto.getText()))
+                .images(imgService.createImages(dto.getImages()))
+                .build();
+    }
+
     private Post getPostAndCheckUserAccess(User user, UUID postId) {
-        OnLineException exception = new OnLineException("Post editing permission denied, userId: " + user.getId(),
-                ErrorCause.ACCESS_DENIED, HttpStatus.FORBIDDEN);
+        OnLineException exception = new OnLineException(
+                "Post editing permission denied, userId: " + user.getId(),
+                ErrorCause.ACCESS_DENIED,
+                HttpStatus.FORBIDDEN);
         Post post = getById(postId);
         if (post.getCommunity() != null) {
             if (!post.getCommunity().getAdmin().equals(user)
@@ -94,19 +98,5 @@ public class PostService {
                 throw exception;
         }
         return post;
-    }
-
-    private Set<Img> getImages(RQPostDto dto, Post post) {
-        if (dto.getImages() == null) {
-            return Collections.emptySet();
-        }
-        return dto.getImages()
-                .stream()
-                .map(imgService::getBytes)
-                .map(bytes -> (Img) Img.builder()
-                        .post(post)
-                        .img(bytes)
-                        .build())
-                .collect(Collectors.toSet());
     }
 }

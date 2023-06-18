@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Set;
+
 
 @Entity
 @Getter
@@ -14,12 +16,12 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @NamedEntityGraph(
-        name = "Community.dependencies",
-        attributeNodes = {
-                @NamedAttributeNode("tags"),
-                @NamedAttributeNode("images"),
-                @NamedAttributeNode("followers"),
-                @NamedAttributeNode(value = "posts", subgraph = "posts-subgraph"),},
+        name = "Community-with-dependencies",
+        attributeNodes = {@NamedAttributeNode("tags"), @NamedAttributeNode("images"), @NamedAttributeNode("followers")})
+
+@NamedEntityGraph(
+        name = "Community-with-posts",
+        attributeNodes = {@NamedAttributeNode(value = "posts", subgraph = "posts-subgraph")},
         subgraphs = {
                 @NamedSubgraph(
                         name = "posts-subgraph",
@@ -27,12 +29,16 @@ import java.util.Set;
                                 @NamedAttributeNode("tags"), @NamedAttributeNode("images")
                         })
         })
+@NamedEntityGraph(
+        name = "Community-with-tags-and-images",
+        attributeNodes = {@NamedAttributeNode("tags"), @NamedAttributeNode("images")
+        })
 public class Community extends AbstractEntity {
     private String name;
     private String subject;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "community")
-    private Set<Img> images;
+    private List<Img> images;
 
     @OneToMany(mappedBy = "community")
     private Set<Post> posts;
@@ -58,8 +64,9 @@ public class Community extends AbstractEntity {
 
     //they're also used by mapper
     public Img getAvatar() {
-        if (images == null)
+        if (images == null) {
             return null;
+        }
         return images.stream()
                 .filter(Img::isAvatar)
                 .findFirst()
@@ -67,8 +74,9 @@ public class Community extends AbstractEntity {
     }
 
     public Img getCover() {
-        if (images == null)
+        if (images == null) {
             return null;
+        }
         return images.stream()
                 .filter(Img::isCover)
                 .findFirst()

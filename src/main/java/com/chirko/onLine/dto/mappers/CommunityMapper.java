@@ -3,7 +3,7 @@ package com.chirko.onLine.dto.mappers;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.community.CommunityWithNumberOfFollowersDto;
-import com.chirko.onLine.dto.response.post.CommunityPostDto;
+import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.entities.Community;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,5 +20,5 @@ public interface CommunityMapper {
 
     @Mapping(target = "posts", source = "posts")
     @Mapping(target = "community", source = "entity")
-    CommunityPageDto toCommunityPageDto(Community entity, Set<CommunityPostDto> posts);
+    CommunityPageDto toCommunityPageDto(Community entity, Set<BasePostDto> posts);
 }

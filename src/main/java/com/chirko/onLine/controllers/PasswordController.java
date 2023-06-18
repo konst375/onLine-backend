@@ -7,7 +7,6 @@ import com.chirko.onLine.dto.response.AuthenticationResponseDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.services.OtpService;
 import com.chirko.onLine.services.PasswordService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -21,11 +20,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/user/password")
 public class PasswordController {
     private final PasswordService passwordService;
-    private final OtpService otpService;
 
     @GetMapping("/reset-form")
     public ResponseEntity<String> getResetPasswordForm(@RequestParam("token") String token) {
-        otpService.validateToken(token);
+        passwordService.validateToken(token);
         return ResponseEntity.ok("Fill reset password form");
     }
 

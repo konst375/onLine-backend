@@ -18,13 +18,11 @@ public class OtpService {
     public static final long FIVE_MIN = 300000;
     private final OtpRepo otpRepo;
 
-    public void validateToken(String validatedToken) {
-        Otp token = otpRepo.findByToken(validatedToken)
-                .orElseThrow(() -> new OnLineException(
-                        "Invalid common token",
-                        ErrorCause.COMMON_TOKEN_INVALID,
-                        HttpStatus.BAD_REQUEST));
-        checkTokenExpiration(token);
+    void validateToken(String token) {
+        checkTokenExpiration(otpRepo.findByToken(token).orElseThrow(() -> new OnLineException(
+                "Invalid common token",
+                ErrorCause.COMMON_TOKEN_INVALID,
+                HttpStatus.BAD_REQUEST)));
     }
 
     String getCommonToken(User user) {

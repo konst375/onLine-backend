@@ -30,6 +30,7 @@ dependencies {
     implementation group: 'org.passay', name: 'passay', version: '1.6.2'
     implementation 'org.mapstruct:mapstruct:1.5.3.Final'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation group: 'com.google.guava', name: 'guava', version: '32.0.0-jre'
     implementation 'org.flywaydb:flyway-core'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'

@@ -18,16 +18,16 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/avatar/update")
-    public ResponseEntity<UserPageDto> updateAvatar(@RequestParam("image") MultipartFile avatar,
-                                                    @AuthenticationPrincipal UUID userId) {
-        UserPageDto response = userService.updateAvatar(userId, avatar);
+    public ResponseEntity<UserPageDto> updateAvatar(@RequestParam("avatar") MultipartFile avatar,
+                                                    @AuthenticationPrincipal User user) {
+        UserPageDto response = userService.updateAvatar(user.getId(), avatar);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/cover/update")
     public ResponseEntity<UserPageDto> updateCover(@RequestParam("cover") MultipartFile cover,
-                                                   @AuthenticationPrincipal UUID userId) {
-        UserPageDto response = userService.updateCover(userId, cover);
+                                                   @AuthenticationPrincipal User user) {
+        UserPageDto response = userService.updateCover(user.getId(), cover);
         return ResponseEntity.ok(response);
     }
 

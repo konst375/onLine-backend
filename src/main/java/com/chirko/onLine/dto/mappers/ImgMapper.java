@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -14,4 +15,6 @@ public interface ImgMapper {
     ImgDto toDto(Img entity);
 
     Set<ImgDto> imagesToImagesDto(Set<Img> images);
+
+    List<ImgDto> imagesToImagesDto(List<Img> images);
 }

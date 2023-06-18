@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,7 +44,7 @@ public class User extends AbstractEntity implements UserDetails {
     private Role role = Role.USER;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private Set<Img> images;
+    private List<Img> images;
 
     @OneToMany(mappedBy = "user")
     private Set<Post> posts;

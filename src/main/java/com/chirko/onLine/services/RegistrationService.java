@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -38,13 +38,14 @@ public class RegistrationService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .birthday(dto.getBirthday())
+                .images(dto.getAvatar() == null ? null : List.of(imgService.createAvatar(dto.getAvatar())))
                 .build();
-        if (dto.getAvatar() != null) {
-                user.setImages(Set.of(imgService.buildUserAvatar(dto.getAvatar(), user)));
+        if (user.getImages() != null) {
+            user.getImages().forEach(img -> img.setUser(user));
         }
-        userRepo.save(user);
+        User savedUser = userRepo.save(user);
         String token = otpService.getCommonToken(user);
-        applicationEventPublisher.publishEvent(new OnSuccessfulRegistrationEvent(user, token));
+        applicationEventPublisher.publishEvent(new OnSuccessfulRegistrationEvent(savedUser, token));
     }
 
     public void resendRegistrationToken(String expiredToken) {

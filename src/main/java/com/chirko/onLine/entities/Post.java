@@ -1,5 +1,6 @@
 package com.chirko.onLine.entities;
 
+import com.chirko.onLine.entities.enums.Owner;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,16 +29,20 @@ public class Post extends AbstractEntity {
     private Community community;
 
     @ManyToMany
-    @JoinTable(name = "Tag_post", joinColumns = @JoinColumn(name = "post_id"),
+    @JoinTable(name = "tag_post", joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
-    private Set<Img> images;
+    private List<Img> images;
 
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<Like> likes;
+
+    public Owner getOwner() {
+        return this.getUser() != null ? Owner.USER : Owner.COMMUNITY;
+    }
 }

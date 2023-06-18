@@ -21,7 +21,7 @@ public class LikeService {
 
     public CommentDto likeComment(UUID commentId, User user) {
         Like like = buildBaseLike(user);
-        Comment comment = commentService.getComment(commentId);
+        Comment comment = commentService.getCommentWithUserImages(commentId);
         like.setComment(comment);
         likeRepo.save(like);
         return commentService.toDto(comment);
@@ -37,14 +37,14 @@ public class LikeService {
 
     public BasePostDto likePost(UUID postId, User user) {
         Like like = buildBaseLike(user);
-        Post post = postService.getById(postId);
+        Post post = postService.findPostWithTagsAndImages(postId);
         like.setPost(post);
         likeRepo.save(like);
         return postService.toDto(post);
     }
 
     @Transactional
-    public void deleteParentId(UUID id) {
+    public void unlike(UUID id) {
         likeRepo.deleteByParentId(id);
     }
 

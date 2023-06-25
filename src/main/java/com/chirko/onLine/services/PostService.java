@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -62,7 +64,7 @@ public class PostService {
         return post;
     }
 
-    public BasePostDto findPostByIdWithTagsAndImages(UUID postId) {
+    public BasePostDto getPost(UUID postId) {
         return postMapper.toBasePostDto(findPostWithTagsAndImages(postId));
     }
 
@@ -71,8 +73,13 @@ public class PostService {
         postRepo.delete(post);
     }
 
-    public BasePostDto toDto(Post post) {
+    public BasePostDto toBasePostDto(Post post) {
         return postMapper.toBasePostDto(post);
+    }
+
+    public Set<BasePostDto> toBasePostsDto(User user) {
+        return postMapper.toBasePostsDto(postRepo.findAllByAdminWithTagsAndImages(user)
+                .orElseGet(Collections::emptySet));
     }
 
     private Post buildPost(RQPostDto dto) {

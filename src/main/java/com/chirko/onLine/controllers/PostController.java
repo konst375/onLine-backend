@@ -37,7 +37,7 @@ public class PostController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BasePostDto> getPost(@PathVariable(name = "id") UUID postId) {
-        BasePostDto response = postService.findPostByIdWithTagsAndImages(postId);
+        BasePostDto response = postService.getPost(postId);
         return ResponseEntity.ok(response);
     }
 

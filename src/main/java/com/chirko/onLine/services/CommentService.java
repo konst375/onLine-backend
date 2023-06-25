@@ -80,6 +80,12 @@ public class CommentService {
         commentRepo.delete(comment);
     }
 
+    public Comment getCommentWithUserImages(UUID commentId) {
+        Comment comment = getById(commentId);
+        comment.getUser().setImages(commentRepo.findUserImages(comment).orElse(null));
+        return comment;
+    }
+
     private void checkUserAccess(Comment comment, User user) {
         if (!comment.getUser().equals(user)) {
             throw new OnLineException(
@@ -101,11 +107,5 @@ public class CommentService {
                 .user(user)
                 .text(dto.getText())
                 .build();
-    }
-
-    public Comment getCommentWithUserImages(UUID commentId) {
-        Comment comment = getById(commentId);
-        comment.getUser().setImages(commentRepo.findUserImages(comment).orElse(null));
-        return comment;
     }
 }

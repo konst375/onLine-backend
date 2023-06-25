@@ -14,8 +14,6 @@ import java.util.UUID;
 
 @Repository
 public interface CommunityRepo extends CrudRepository<Community, UUID> {
-    Optional<Set<Community>> findByAdmin(User user);
-
     @Query("""
             SELECT c.followers
             FROM Community c
@@ -36,7 +34,7 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             FROM Community c
             WHERE c.id = :id
             """)
-    @EntityGraph(value = "Community-with-dependencies")
+    @EntityGraph(value = "Community-with-dependencies", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Community> findByIdAndFetchAllDependenciesWithoutPosts(@Param("id") UUID id);
 
     @Query("""

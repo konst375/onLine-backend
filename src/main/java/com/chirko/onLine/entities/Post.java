@@ -42,7 +42,13 @@ public class Post extends AbstractEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<Like> likes;
 
+    // it used by mapper
     public Owner getOwner() {
-        return this.getUser() != null ? Owner.USER : Owner.COMMUNITY;
+        if (this.getUser() != null) {
+            return Owner.USER;
+        } else if (this.getCommunity() != null) {
+            return Owner.COMMUNITY;
+        }
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 package com.chirko.onLine.dto.mappers;
 
-import com.chirko.onLine.dto.response.post.UserPostDto;
+import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.dto.response.user.UserPageDto;
 import com.chirko.onLine.entities.User;
@@ -23,5 +23,5 @@ public interface UserMapper {
 
     @Named("UserPageDto")
     @Mapping(target = "posts", source = "posts")
-    UserPageDto userToUserPageDto(User user, Set<UserPostDto> posts);
+    UserPageDto userToUserPageDto(User user, Set<BasePostDto> posts);
 }

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,5 +14,5 @@ import java.util.Set;
 @AllArgsConstructor
 public class RQPostDto {
     private String text;
-    private Set<MultipartFile> images;
+    private List<MultipartFile> images;
 }

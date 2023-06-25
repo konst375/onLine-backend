@@ -9,9 +9,9 @@ import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.Community;
+import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
-import com.chirko.onLine.entities.enums.Role;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.CommunityRepo;
@@ -38,7 +38,6 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
     private final CommunityRepo communityRepo;
 
-    //    @Transactional
     public BaseCommunityDto createCommunity(User user, RQRegisterCommunityDto dto) {
         Community community = Community.builder()
                 .name(dto.getName())
@@ -51,38 +50,38 @@ public class CommunityService {
             community.getImages().forEach(img -> img.setCommunity(community));
         }
         Community savedCommunity = communityRepo.save(community);
-        user.setRole(Role.ADMIN);
         return communityMapper.toBaseDto(savedCommunity);
     }
 
     public CommunityPageDto getCommunityPage(UUID communityId) {
         Community community = communityRepo.findByIdAndFetchAllDependenciesWithoutPosts(communityId)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-        // reduce duplicates images at Community.images collection
-        community.setImages(Lists.newArrayList(Sets.newLinkedHashSet(community.getImages())));
-
-        Set<BasePostDto> postsDto = getPostsDtoSet(communityId, community);
+        removeDuplicateImages(community);
+        Set<BasePostDto> postsDto = getBasePostsDtoSet(communityId);
         return communityMapper.toCommunityPageDto(community, postsDto);
     }
 
     public Community getCommunity(UUID communityId) {
-        return communityRepo.findByIdWithTagsAndImages(communityId)
+        Community community = communityRepo.findByIdWithTagsAndImages(communityId)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
+        removeDuplicateImages(community);
+        return community;
     }
 
-    @Transactional
     public CommunityPageDto updateAvatar(UUID communityId, @NonNull MultipartFile avatar, User user) {
         Community community = getCommunityAndCheckUserAccess(communityId, user);
         if (community.getAvatar() != null) {
             community.getAvatar().setImg(imgService.getBytes(avatar));
         } else {
-            community.getImages().add(imgService.createAvatar(avatar));
+            Img img = imgService.createAvatar(avatar);
+            img.setCommunity(community);
+            community.getImages().add(img);
         }
-        Set<BasePostDto> postsDto = getPostsDtoSet(communityId, community);
-        return communityMapper.toCommunityPageDto(community, postsDto);
+        Community savedCommunity = communityRepo.save(community);
+        Set<BasePostDto> posts = getBasePostsDtoSet(communityId);
+        return communityMapper.toCommunityPageDto(savedCommunity, posts);
     }
 
-    @Transactional
     public CommunityPageDto updateCover(UUID communityId, @NonNull MultipartFile cover, User user) {
         Community community = getCommunityAndCheckUserAccess(communityId, user);
         if (community.getCover() != null) {
@@ -90,16 +89,15 @@ public class CommunityService {
         } else {
             community.getImages().add(imgService.createCover(cover));
         }
-        Set<BasePostDto> postsDto = getPostsDtoSet(communityId, community);
-        return communityMapper.toCommunityPageDto(community, postsDto);
+        Community savedCommunity = communityRepo.save(community);
+        Set<BasePostDto> posts = getBasePostsDtoSet(communityId);
+        return communityMapper.toCommunityPageDto(savedCommunity, posts);
     }
 
     public void deleteCommunity(UUID communityId, User user) {
         Community community = communityRepo.findById(communityId)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-        Set<Community> communities = communityRepo.findByAdmin(user)
-                .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-        if (communities.contains(community)) {
+        if (community.getAdmin().equals(user)) {
             communityRepo.delete(community);
         } else {
             throw new OnLineException(
@@ -116,6 +114,7 @@ public class CommunityService {
                         "Community not found, communityId: " + communityId,
                         ErrorCause.COMMUNITY_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
+        removeDuplicateImages(community);
         community.getFollowers().add(user);
         Set<BasePostDto> postsDto = postMapper.toBasePostsDto(community.getPosts());
         return communityMapper.toCommunityPageDto(community, postsDto);
@@ -128,6 +127,7 @@ public class CommunityService {
                         "Community not found, communityId: " + communityId,
                         ErrorCause.COMMUNITY_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
+        removeDuplicateImages(community);
         community.getFollowers().remove(user);
         Set<BasePostDto> Dto = postMapper.toBasePostsDto(community.getPosts());
         return communityMapper.toCommunityPageDto(community, Dto);
@@ -158,6 +158,7 @@ public class CommunityService {
                         ErrorCause.COMMUNITY_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
         if (community.getAdmin().equals(user)) {
+            removeDuplicateImages(community);
             return community;
         } else {
             throw new OnLineException(
@@ -167,11 +168,11 @@ public class CommunityService {
         }
     }
 
-    private Set<BasePostDto> getPostsDtoSet(UUID communityId, Community community) {
-        Community communityWithPosts = communityRepo.findCommunityWithPostsAndTheirImagesAndTags(communityId)
+    private Set<BasePostDto> getBasePostsDtoSet(UUID communityId) {
+        Community community = communityRepo.findCommunityWithPostsAndTheirImagesAndTags(communityId)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMUNITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-        Set<Post> posts = communityWithPosts.getPosts();
-        // reduce duplicate images at Community.posts.images collection
+        Set<Post> posts = community.getPosts();
+        // remove duplicate images at Community.posts.images collection
         posts.forEach(post -> {
             post.setImages(Lists.newArrayList(Sets.newLinkedHashSet(post.getImages())));
             post.setCommunity(community);
@@ -179,5 +180,9 @@ public class CommunityService {
         Set<BasePostDto> postsDto = postMapper.toBasePostsDto(posts);
         community.setPosts(posts);
         return postsDto;
+    }
+
+    private void removeDuplicateImages(Community community) {
+        community.setImages(Lists.newArrayList(Sets.newLinkedHashSet(community.getImages())));
     }
 }

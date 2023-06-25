@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,7 +49,7 @@ public class ImgService {
                 HttpStatus.NOT_FOUND));
     }
 
-    public List<Img> createImages(Set<MultipartFile> images) {
+    public List<Img> createImages(List<MultipartFile> images) {
         if (images == null) {
             return null;
         }

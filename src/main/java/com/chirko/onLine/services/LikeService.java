@@ -40,7 +40,7 @@ public class LikeService {
         Post post = postService.findPostWithTagsAndImages(postId);
         like.setPost(post);
         likeRepo.save(like);
-        return postService.toDto(post);
+        return postService.toBasePostDto(post);
     }
 
     @Transactional

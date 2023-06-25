@@ -21,6 +21,6 @@ public interface UserRepo extends CrudRepository<User, UUID> {
             FROM User u
             WHERE u.id = :id
             """)
-    @EntityGraph(attributePaths = {"images", "posts"})
-    Optional<User> findByIdAndFetchUserImagesAndPostsEagerly(@Param("id") UUID id);
+    @EntityGraph(attributePaths = "images")
+    Optional<User> findUserByIdAndFetchImagesEagerly(@Param("id") UUID id);
 }

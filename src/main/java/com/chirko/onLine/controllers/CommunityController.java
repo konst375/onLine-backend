@@ -6,6 +6,7 @@ import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.services.CommunityService;
+import com.chirko.onLine.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,13 @@ import java.util.UUID;
 @RequestMapping("/api/v1/community")
 public class CommunityController {
     private final CommunityService communityService;
+    private final UserService userService;
 
     @PostMapping("/create")
     public ResponseEntity<BaseCommunityDto> createCommunity(RQRegisterCommunityDto dto,
                                                             @AuthenticationPrincipal User user) {
         BaseCommunityDto response = communityService.createCommunity(user, dto);
+        userService.updateRoleToAdmin(user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

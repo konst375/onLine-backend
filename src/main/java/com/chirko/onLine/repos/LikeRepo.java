@@ -15,7 +15,15 @@ public interface LikeRepo extends CrudRepository<Like, UUID> {
     @Query("""
             DELETE
             FROM Like l
-            WHERE l.img.id = :id OR l.post.id = :id OR l.comment.id = :id
+            WHERE (l.user.id = :userId AND l.img.id = :id)
+            OR (l.user.id = :userId AND l.post.id = :id)
+            OR (l.user.id = :userId AND l.comment.id = :id)
             """)
-    void deleteByParentId(@Param("id") UUID id);
+    void deleteByUserIdAndParentId(@Param("id") UUID id, @Param("userId") UUID userId);
+
+    boolean existsByUserIdAndPostId(UUID userId, UUID postId);
+
+    boolean existsByUserIdAndImgId(UUID userId, UUID imgId);
+
+    boolean existsByUserIdAndCommentId(UUID userId, UUID imgId);
 }

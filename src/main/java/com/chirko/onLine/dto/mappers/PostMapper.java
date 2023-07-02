@@ -10,8 +10,13 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.Set;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {ImgMapper.class, UserMapper.class, TagMapper.class, CommunityMapper.class})
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        imports = {ImgMapper.class, UserMapper.class, TagMapper.class, CommunityMapper.class})
 public interface PostMapper {
+    // TODO: 26.06.2023 do something with this shit
+    @Mapping(target = "likes", expression = "java(entity.getLikes().size())")
+    @Mapping(target = "comments", expression = "java(entity.getComments().size())")
     BasePostDto toBasePostDto(Post entity);
 
     Set<BasePostDto> toBasePostsDto(Set<Post> posts);

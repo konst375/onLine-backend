@@ -19,9 +19,17 @@ public interface CommentRepo extends CrudRepository<Comment, UUID> {
     @Query("""
             SELECT c
             FROM Comment c
+            WHERE c.id = :id
+            """)
+    @EntityGraph(attributePaths = "likes", type = EntityGraph.EntityGraphType.LOAD)
+    Optional<Comment> getByIdWithLikes(@Param("id") UUID id);
+
+    @Query("""
+            SELECT c
+            FROM Comment c
             WHERE c.post = :post
             """)
-    @EntityGraph(attributePaths = {"user.images"})
+    @EntityGraph(attributePaths = {"user.images", "likes"})
     Optional<Set<Comment>> findAllByPostAndFetchUserImagesEagerly(@Param("post") Post post);
 
     @Query("""
@@ -29,8 +37,8 @@ public interface CommentRepo extends CrudRepository<Comment, UUID> {
             FROM Comment c
             WHERE c.img = :img
             """)
-    @EntityGraph(attributePaths = {"user.images"})
-    Optional<Set<Comment>> findAllByImgAndFetchUserImagesEagerly(@Param("img") Img img);
+    @EntityGraph(attributePaths = {"user.images", "likes"})
+    Optional<Set<Comment>> findAllByImgWithUserImagesAndLikes(@Param("img") Img img);
 
     @Query("""
             SELECT c.user.images

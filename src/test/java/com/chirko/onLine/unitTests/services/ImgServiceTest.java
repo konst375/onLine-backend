@@ -1,7 +1,9 @@
 package com.chirko.onLine.unitTests.services;
 
+import com.chirko.onLine.dto.mappers.CommentMapperImpl;
 import com.chirko.onLine.dto.mappers.ImgMapperImpl;
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.mappers.UserMapperImpl;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
@@ -30,7 +32,9 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         ImgService.class,
-        ImgMapperImpl.class
+        ImgMapperImpl.class,
+        CommentMapperImpl.class,
+        UserMapperImpl.class
 })
 class ImgServiceTest {
     @Autowired
@@ -130,9 +134,9 @@ class ImgServiceTest {
         Img img = Img.builder()
                 .id(UUID.randomUUID())
                 .build();
-        ImgDto expectedDto = new ImgDto(img.getId().toString(), null, null);
+        BaseImgDto expectedDto = new BaseImgDto(img.getId().toString(), null, null, null);
         // when
-        ImgDto actualDto = imgService.toDto(img);
+        BaseImgDto actualDto = imgService.toDto(img);
         // then
         assertEquals(expectedDto, actualDto);
     }

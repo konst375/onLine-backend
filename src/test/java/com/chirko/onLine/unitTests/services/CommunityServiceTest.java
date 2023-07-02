@@ -4,10 +4,10 @@ import com.chirko.onLine.dto.mappers.CommunityMapperImpl;
 import com.chirko.onLine.dto.mappers.PostMapperImpl;
 import com.chirko.onLine.dto.mappers.UserMapperImpl;
 import com.chirko.onLine.dto.request.community.RQRegisterCommunityDto;
-import com.chirko.onLine.dto.response.ImgDto;
 import com.chirko.onLine.dto.response.TagDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.*;
@@ -130,7 +130,7 @@ class CommunityServiceTest {
                 null,
                 expectedCommunity.getName(),
                 expectedCommunity.getSubject(),
-                new ImgDto(null, expectedImgBytes, null),
+                new BaseImgDto(null, expectedImgBytes, null, null),
                 Set.of(new TagDto(tagName)));
 
         when(imgService.createAvatar(eq(mockMultipartFile))).thenReturn(avatar);
@@ -166,8 +166,8 @@ class CommunityServiceTest {
                 Img.builder().id(UUID.randomUUID()).build(),
                 Img.builder().id(UUID.randomUUID()).build(),
                 Img.builder().id(UUID.randomUUID()).build());
-        List<ImgDto> imgDtoSet = images.stream()
-                .map(img -> new ImgDto(img.getId().toString(), null, null))
+        List<BaseImgDto> baseImgDtoSet = images.stream()
+                .map(img -> new BaseImgDto(img.getId().toString(), null, null, null))
                 .collect(Collectors.toList());
 
         UUID communityId = UUID.randomUUID();
@@ -180,9 +180,12 @@ class CommunityServiceTest {
                 .posts(Collections.emptySet())
                 .build();
         Set<Post> posts = Set.of(
-                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList()).build(),
-                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList()).build(),
-                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList()).build());
+                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList())
+                        .likes(Collections.emptySet()).comments(Collections.emptySet()).build(),
+                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList())
+                        .likes(Collections.emptySet()).comments(Collections.emptySet()).build(),
+                Post.builder().id(UUID.randomUUID()).community(expectedCommunity).images(Collections.emptyList())
+                        .likes(Collections.emptySet()).comments(Collections.emptySet()).build());
         expectedCommunity.setPosts(posts);
         when(communityRepo.findByIdAndFetchAllDependenciesWithoutPosts(communityId))
                 .thenReturn(Optional.of(expectedCommunity));
@@ -196,12 +199,21 @@ class CommunityServiceTest {
                 null,
                 tagDtoSet);
         Set<BasePostDto> basePostsDto = posts.stream()
-                .map(post -> new BasePostDto(post.getId().toString(), null, Collections.emptyList(), null, null, Owner.COMMUNITY))
+                .map(post -> new BasePostDto(
+                        post.getId().toString(),
+                        null,
+                        Collections.emptyList(),
+                        null,
+                        null,
+                        Owner.COMMUNITY,
+                        0,
+                        Collections.emptySet(),
+                        0))
                 .collect(Collectors.toSet());
         CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
-                imgDtoSet,
+                baseImgDtoSet,
                 basePostsDto);
         // when
         CommunityPageDto actualDto = communityService.getCommunityPage(communityId);
@@ -275,12 +287,12 @@ class CommunityServiceTest {
                 expectedCommunity.getId().toString(),
                 expectedCommunity.getName(),
                 expectedCommunity.getSubject(),
-                new ImgDto(null, expectedImgBytes, null),
+                new BaseImgDto(null, expectedImgBytes, null, null),
                 null);
         CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
-                List.of(new ImgDto(null, expectedImgBytes, null)),
+                List.of(new BaseImgDto(null, expectedImgBytes, null, null)),
                 Collections.emptySet());
         // when
         CommunityPageDto actualDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
@@ -323,12 +335,12 @@ class CommunityServiceTest {
                 expectedCommunity.getId().toString(),
                 expectedCommunity.getName(),
                 expectedCommunity.getSubject(),
-                new ImgDto(null, expectedImgBytes, null),
+                new BaseImgDto(null, expectedImgBytes, null, null),
                 null);
         CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 null,
-                List.of(new ImgDto(null, expectedImgBytes, null)),
+                List.of(new BaseImgDto(null, expectedImgBytes, null, null)),
                 Collections.emptySet());
         // when
         CommunityPageDto actualDto = communityService.updateAvatar(expectedCommunity.getId(), mockMultipartFile, user);
@@ -394,7 +406,7 @@ class CommunityServiceTest {
                 expectedCommunity.getSubject(),
                 null,
                 null);
-        ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
+        BaseImgDto coverDto = new BaseImgDto(null, expectedImgBytes, null, null);
         CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 coverDto,
@@ -444,7 +456,7 @@ class CommunityServiceTest {
                 expectedCommunity.getSubject(),
                 null,
                 null);
-        ImgDto coverDto = new ImgDto(null, expectedImgBytes, null);
+        BaseImgDto coverDto = new BaseImgDto(null, expectedImgBytes, null, null);
         CommunityPageDto expectedDto = new CommunityPageDto(
                 baseCommunityDto,
                 coverDto,

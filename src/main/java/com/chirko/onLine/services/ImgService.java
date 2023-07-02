@@ -1,7 +1,8 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.mappers.ImgMapper;
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
+import com.chirko.onLine.dto.response.img.FullImgDto;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
@@ -76,7 +77,25 @@ public class ImgService {
                 .build();
     }
 
-    public ImgDto toDto(Img img) {
+    public BaseImgDto toDto(Img img) {
         return imgMapper.toDto(img);
+    }
+
+    public FullImgDto toFullImgDto(Img img) {
+        return imgMapper.toFullDto(img);
+    }
+
+    public FullImgDto getFullImgDto(UUID imgId) {
+        return imgMapper.toFullDto(getFullImgById(imgId));
+    }
+
+    public Img getFullImgById(UUID imgId) {
+        Img img = imgRepo.findByIdWithLikesAndComments(imgId)
+                .orElseThrow(() -> new OnLineException(ErrorCause.IMAGE_NOT_FOUND, HttpStatus.NOT_FOUND));
+        img.getLikes().forEach(like -> {
+            User user = like.getUser();
+            user.setImages(findUserImages(user));
+        });
+        return img;
     }
 }

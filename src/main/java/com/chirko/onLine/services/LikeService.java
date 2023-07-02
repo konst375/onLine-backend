@@ -1,11 +1,14 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.response.CommentDto;
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.response.img.FullImgDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.entities.*;
+import com.chirko.onLine.exceptions.ErrorCause;
+import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.LikeRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,32 +23,51 @@ public class LikeService {
     private final LikeRepo likeRepo;
 
     public CommentDto likeComment(UUID commentId, User user) {
+        if (likeRepo.existsByUserIdAndCommentId(user.getId(), commentId)) {
+            throw new OnLineException(ErrorCause.ALREADY_LIKED, HttpStatus.BAD_REQUEST);
+        }
+        user.setImages(imgService.findUserImages(user));
         Like like = buildBaseLike(user);
-        Comment comment = commentService.getCommentWithUserImages(commentId);
+        Comment comment = commentService.getCommentWithUserImagesAndLikes(commentId);
         like.setComment(comment);
+        comment.getLikes().add(like);
         likeRepo.save(like);
         return commentService.toDto(comment);
     }
 
-    public ImgDto likeImg(UUID imgId, User user) {
+    public FullImgDto likeImg(UUID imgId, User user) {
+        if (likeRepo.existsByUserIdAndImgId(user.getId(), imgId)) {
+            throw new OnLineException(ErrorCause.ALREADY_LIKED, HttpStatus.BAD_REQUEST);
+        }
+        user.setImages(imgService.findUserImages(user));
         Like like = buildBaseLike(user);
-        Img img = imgService.getById(imgId);
+        Img img = imgService.getFullImgById(imgId);
+        img.getLikes().forEach(l -> {
+                            User u = l.getUser();
+                            u.setImages(imgService.findUserImages(u));
+        });
         like.setImg(img);
+        img.getLikes().add(like);
         likeRepo.save(like);
-        return imgService.toDto(img);
+        return imgService.toFullImgDto(img);
     }
 
     public BasePostDto likePost(UUID postId, User user) {
+        if (likeRepo.existsByUserIdAndPostId(user.getId(), postId)) {
+            throw new OnLineException(ErrorCause.ALREADY_LIKED, HttpStatus.BAD_REQUEST);
+        }
+        user.setImages(imgService.findUserImages(user));
         Like like = buildBaseLike(user);
-        Post post = postService.findPostWithTagsAndImages(postId);
+        Post post = postService.findPostWithAllDependencies(postId);
         like.setPost(post);
+        post.getLikes().add(like);
         likeRepo.save(like);
         return postService.toBasePostDto(post);
     }
 
     @Transactional
-    public void unlike(UUID id) {
-        likeRepo.deleteByParentId(id);
+    public void unlike(UUID id, User user) {
+        likeRepo.deleteByUserIdAndParentId(id, user.getId());
     }
 
     private Like buildBaseLike(User user) {

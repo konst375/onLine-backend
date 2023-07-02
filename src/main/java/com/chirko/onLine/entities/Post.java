@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -50,5 +51,11 @@ public class Post extends AbstractEntity {
             return Owner.COMMUNITY;
         }
         return null;
+    }
+
+    public Set<User> getWhoLiked() {
+        return this.getLikes().stream()
+                .map(Like::getUser)
+                .collect(Collectors.toSet());
     }
 }

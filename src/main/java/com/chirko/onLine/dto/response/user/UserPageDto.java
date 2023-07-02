@@ -1,6 +1,6 @@
 package com.chirko.onLine.dto.response.user;
 
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 
 import java.time.LocalDate;
@@ -10,9 +10,9 @@ public record UserPageDto(
         String id,
         String name,
         String surname,
-        ImgDto avatar,
-        ImgDto cover,
+        BaseImgDto avatar,
+        BaseImgDto cover,
         LocalDate birthday,
-        Set<ImgDto> images,
+        Set<BaseImgDto> images,
         Set<BasePostDto> posts) {
 }

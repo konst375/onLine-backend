@@ -2,7 +2,8 @@ package com.chirko.onLine.unitTests.services;
 
 import com.chirko.onLine.dto.mappers.*;
 import com.chirko.onLine.dto.response.CommentDto;
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
+import com.chirko.onLine.dto.response.img.FullImgDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.Comment;
@@ -22,6 +23,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,18 +68,21 @@ class LikeServiceTest {
                 .id(UUID.randomUUID())
                 .text("some comment")
                 .user(user)
+                .likes(new HashSet<>())
                 .build();
 
-        when(commentService.getCommentWithUserImages(comment.getId())).thenReturn(comment);
+        when(commentService.getCommentWithUserImagesAndLikes(comment.getId())).thenReturn(comment);
         when(commentService.toDto(comment)).thenAnswer(
                 invocation -> commentMapper.toDto((Comment) invocation.getArguments()[0])
         );
 
         CommentDto expectedDto = new CommentDto(
+                comment.getId().toString(),
                 comment.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
-                null);
+                null,
+                1);
         // when
         CommentDto actualDto = likeService.likeComment(comment.getId(), user);
         // then
@@ -91,16 +98,19 @@ class LikeServiceTest {
 
         Img img = Img.builder()
                 .id(UUID.randomUUID())
+                .likes(new HashSet<>())
+                .comments(Collections.emptySet())
                 .build();
 
-        when(imgService.getById(img.getId())).thenReturn(img);
-        when(imgService.toDto(img)).thenAnswer(
-                invocation -> imgMapper.toDto((Img) invocation.getArguments()[0])
+        when(imgService.getFullImgById(img.getId())).thenReturn(img);
+        when(imgService.toFullImgDto(img)).thenAnswer(invocation -> imgMapper.toFullDto(
+                (Img) invocation.getArguments()[0])
         );
-
-        ImgDto expectedDto = new ImgDto(img.getId().toString(), null, null);
+        BaseUserDto baseUserDto = new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null);
+        BaseImgDto baseImgDto = new BaseImgDto(img.getId().toString(), null, null, null);
+        FullImgDto expectedDto = new FullImgDto(baseImgDto, 1, Set.of(baseUserDto), 0, Collections.emptySet());
         // when
-        ImgDto actualDto = likeService.likeImg(img.getId(), user);
+        FullImgDto actualDto = likeService.likeImg(img.getId(), user);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -115,8 +125,10 @@ class LikeServiceTest {
                 .id(UUID.randomUUID())
                 .text("some text")
                 .user(user)
+                .likes(new HashSet<>())
+                .comments(Collections.emptySet())
                 .build();
-        when(postService.findPostWithTagsAndImages(post.getId())).thenReturn(post);
+        when(postService.findPostWithAllDependencies(post.getId())).thenReturn(post);
         when(postService.toBasePostDto(post)).thenAnswer(
                 invocation -> postMapper.toBasePostDto((Post) invocation.getArguments()[0])
         );
@@ -127,7 +139,10 @@ class LikeServiceTest {
                 null,
                 null,
                 null,
-                Owner.USER);
+                Owner.USER,
+                1,
+                Set.of(new BaseUserDto(user.getId().toString(), null, null, null)),
+                0);
         // when
         BasePostDto actualDto = likeService.likePost(post.getId(), user);
         // then
@@ -138,9 +153,10 @@ class LikeServiceTest {
     void unlike() {
         // given
         UUID id = UUID.randomUUID();
+        User user = User.builder().build();
         // when
-        likeService.unlike(id);
+        likeService.unlike(id, user);
         // then
-        verify(likeRepo, times(1)).deleteByParentId(id);
+        verify(likeRepo, times(1)).deleteByUserIdAndParentId(id, user.getId());
     }
 }

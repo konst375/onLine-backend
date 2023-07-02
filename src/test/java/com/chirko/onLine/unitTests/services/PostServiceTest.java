@@ -55,7 +55,7 @@ class PostServiceTest {
     private PostRepo postRepo;
 
     @Test
-    void ifCreateUserPost() {
+    void createUserPost() {
         // given
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -67,7 +67,15 @@ class PostServiceTest {
 
         UserPostDto expectedUserPostDto = new UserPostDto(
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
-                new BasePostDto(null, rqPostDto.getText(), Collections.emptyList(), Collections.emptySet(), null, Owner.USER)
+                new BasePostDto(null,
+                        rqPostDto.getText(),
+                        Collections.emptyList(),
+                        Collections.emptySet(),
+                        null,
+                        Owner.USER,
+                        0,
+                        Collections.emptySet(),
+                        0)
         );
 
         when(imgService.findUserImages(user)).thenReturn(null);
@@ -80,7 +88,7 @@ class PostServiceTest {
     }
 
     @Test
-    void ifCreateUserPostAndImagesAtDtoAreNull() {
+    void ifCreateUserPostWithoutImages() {
         // given
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -93,7 +101,15 @@ class PostServiceTest {
 
         UserPostDto expectedDto = new UserPostDto(
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
-                new BasePostDto(null, rqPostDto.getText(), Collections.emptyList(), Collections.emptySet(), null, Owner.USER)
+                new BasePostDto(null,
+                        rqPostDto.getText(),
+                        Collections.emptyList(),
+                        Collections.emptySet(),
+                        null,
+                        Owner.USER,
+                        0,
+                        Collections.emptySet(),
+                        0)
         );
 
         when(imgService.findUserImages(user)).thenReturn(Collections.emptyList());
@@ -106,7 +122,7 @@ class PostServiceTest {
     }
 
     @Test
-    void ifCreateCommunityPost() {
+    void createCommunityPost() {
         // given
         Community community = Community.builder()
                 .id(UUID.randomUUID())
@@ -118,7 +134,16 @@ class PostServiceTest {
 
         CommunityPostDto expectedDto = new CommunityPostDto(
                 new BaseCommunityDto(community.getId().toString(), community.getName(), community.getSubject(), null, null),
-                new BasePostDto(null, rqPostDto.getText(), Collections.emptyList(), Collections.emptySet(), null, Owner.COMMUNITY)
+                new BasePostDto(
+                        null,
+                        rqPostDto.getText(),
+                        Collections.emptyList(),
+                        Collections.emptySet(),
+                        null,
+                        Owner.COMMUNITY,
+                        0,
+                        Collections.emptySet(),
+                        0)
         );
 
         when(communityService.getCommunity(community.getId())).thenReturn(community);
@@ -140,18 +165,20 @@ class PostServiceTest {
     @Test
     void ifGetPostAndPostNotFound() {
         OnLineException thrown = assertThrows(OnLineException.class,
-                () -> postService.getPost(UUID.randomUUID()));
+                () -> postService.getBasePostDtoById(UUID.randomUUID()));
         assertEquals(ErrorCause.POST_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
 
     @Test
-    void getPost() {
+    void getBasePostDtoById() {
         // given
         Post post = Post.builder()
                 .id(UUID.randomUUID())
                 .text("some text")
                 .images(Collections.emptyList())
+                .likes(Collections.emptySet())
+                .comments(Collections.emptySet())
                 .build();
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -160,17 +187,26 @@ class PostServiceTest {
                 .posts(Set.of(post))
                 .build();
         post.setUser(user);
-        when(postRepo.findByIdWithTagsAndImages(post.getId())).thenReturn(Optional.of(post));
+        when(postRepo.findByIdWithAllDependencies(post.getId())).thenReturn(Optional.of(post));
 
-        BasePostDto expectedDto = new BasePostDto(post.getId().toString(), post.getText(), Collections.emptyList(), null, null, Owner.USER);
+        BasePostDto expectedDto = new BasePostDto(
+                post.getId().toString(),
+                post.getText(),
+                Collections.emptyList(),
+                null,
+                null,
+                Owner.USER,
+                0,
+                Collections.emptySet(),
+                0);
         // when
-        BasePostDto actualDto = postService.getPost(post.getId());
+        BasePostDto actualDto = postService.getBasePostDtoById(post.getId());
         // then
         assertEquals(expectedDto, actualDto);
     }
 
     @Test
-    void ifJustUserDeletePost() {
+    void deletePost() {
         // given
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -268,6 +304,8 @@ class PostServiceTest {
                 .id(UUID.randomUUID())
                 .text("some text")
                 .modifiedDate(new Timestamp(System.currentTimeMillis()))
+                .likes(Collections.emptySet())
+                .comments(Collections.emptySet())
                 .build();
 
         BasePostDto expectedDto = new BasePostDto(
@@ -276,7 +314,10 @@ class PostServiceTest {
                 null,
                 null,
                 post.getModifiedDate(),
-                null);
+                null,
+                0,
+                Collections.emptySet(),
+                0);
         // when
         BasePostDto actualDto = postService.toBasePostDto(post);
         // then
@@ -287,18 +328,21 @@ class PostServiceTest {
     void toBasePostsDto() {
         // given
         User user = User.builder().id(UUID.randomUUID()).build();
-        Post post1 = Post.builder().id(UUID.randomUUID()).user(user).text("1").build();
-        Post post2 = Post.builder().id(UUID.randomUUID()).user(user).text("2").build();
-        Post post3 = Post.builder().id(UUID.randomUUID()).user(user).text("3").build();
-        Set<Post> posts = Set.of(
-                post1,
-                post2,
-                post3);
-        when(postRepo.findAllByAdminWithTagsAndImages(any(User.class))).thenReturn(Optional.of(posts));
+        Post post1 = Post.builder().id(UUID.randomUUID()).user(user).text("1").likes(Collections.emptySet())
+                .comments(Collections.emptySet()).build();
+        Post post2 = Post.builder().id(UUID.randomUUID()).user(user).text("2").likes(Collections.emptySet())
+                .comments(Collections.emptySet()).build();
+        Post post3 = Post.builder().id(UUID.randomUUID()).user(user).text("3").likes(Collections.emptySet())
+                .comments(Collections.emptySet()).build();
+        Set<Post> posts = Set.of(post1, post2, post3);
+        when(postRepo.findAllByAdminWithTagsImagesAndLikes(any(User.class))).thenReturn(Optional.of(posts));
         Set<BasePostDto> expected = Set.of(
-                new BasePostDto(post1.getId().toString(), post1.getText(), null, null, null, Owner.USER),
-                new BasePostDto(post2.getId().toString(), post2.getText(), null, null, null, Owner.USER),
-                new BasePostDto(post3.getId().toString(), post3.getText(), null, null, null, Owner.USER)
+                new BasePostDto(post1.getId().toString(), post1.getText(), null, null, null,
+                        Owner.USER, 0, Collections.emptySet(), 0),
+                new BasePostDto(post2.getId().toString(), post2.getText(), null, null, null,
+                        Owner.USER, 0, Collections.emptySet(), 0),
+                new BasePostDto(post3.getId().toString(), post3.getText(), null, null, null,
+                        Owner.USER, 0, Collections.emptySet(), 0)
         );
         // when
         Set<BasePostDto> actual = postService.toBasePostsDto(user);

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -40,4 +41,10 @@ public class Img extends AbstractEntity {
 
     @OneToMany(mappedBy = "img", cascade = CascadeType.ALL)
     private Set<Like> likes;
+
+    public Set<User> getWhoLiked() {
+        return this.getLikes().stream()
+                .map(Like::getUser)
+                .collect(Collectors.toSet());
+    }
 }

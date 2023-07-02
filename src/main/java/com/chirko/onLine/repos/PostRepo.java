@@ -19,14 +19,14 @@ public interface PostRepo extends CrudRepository<Post, UUID> {
             FROM Post p
             WHERE p.id = :id
             """)
-    @EntityGraph(attributePaths = {"tags", "images"}, type = EntityGraph.EntityGraphType.LOAD)
-    Optional<Post> findByIdWithTagsAndImages(@Param("id") UUID id);
+    @EntityGraph(attributePaths = {"tags", "images", "likes", "comments"}, type = EntityGraph.EntityGraphType.LOAD)
+    Optional<Post> findByIdWithAllDependencies(@Param("id") UUID id);
 
     @Query("""
             SELECT p
             FROM Post p
             WHERE p.user = :user
             """)
-    @EntityGraph(attributePaths = {"tags", "images"}, type = EntityGraph.EntityGraphType.LOAD)
-    Optional<Set<Post>> findAllByAdminWithTagsAndImages(@Param("user") User user);
+    @EntityGraph(attributePaths = {"tags", "images", "likes"}, type = EntityGraph.EntityGraphType.LOAD)
+    Optional<Set<Post>> findAllByAdminWithTagsImagesAndLikes(@Param("user") User user);
 }

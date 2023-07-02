@@ -8,8 +8,11 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.Set;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {UserMapper.class}, uses = {UserMapper.class})
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        imports = {UserMapper.class, ImgMapper.class}, uses = {UserMapper.class})
 public interface CommentMapper {
+    @Mapping(target = "likes", expression = "java(entity.getLikes().size())")
     @Mapping(target = "user", qualifiedByName = {"UserMapper", "BaseUserDto"})
     CommentDto toDto(Comment entity);
 

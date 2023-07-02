@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -62,13 +63,13 @@ public class CommentService {
 
     public Set<CommentDto> getImgComments(UUID imgId) {
         Img img = imgService.getById(imgId);
-        Set<Comment> comments = commentRepo.findAllByImgAndFetchUserImagesEagerly(img).orElse(null);
+        Set<Comment> comments = commentRepo.findAllByImgWithUserImagesAndLikes(img).orElse(null);
         return commentMapper.commentsToCommentsDto(comments);
     }
 
     @Transactional
     public CommentDto updateComment(UUID commentId, User user, RQCommentDto dto) {
-        Comment comment = getById(commentId);
+        Comment comment = getByIdWithLikes(commentId);
         checkUserAccess(comment, user);
         comment.setText(dto.getText());
         return commentMapper.toDto(comment);
@@ -80,8 +81,8 @@ public class CommentService {
         commentRepo.delete(comment);
     }
 
-    public Comment getCommentWithUserImages(UUID commentId) {
-        Comment comment = getById(commentId);
+    public Comment getCommentWithUserImagesAndLikes(UUID commentId) {
+        Comment comment = getByIdWithLikes(commentId);
         comment.getUser().setImages(commentRepo.findUserImages(comment).orElse(null));
         return comment;
     }
@@ -98,7 +99,14 @@ public class CommentService {
     private Comment getById(UUID commentId) {
         return commentRepo.findById(commentId).orElseThrow(() -> new OnLineException(
                 "Comment not found, commentId: " +
-                commentId, ErrorCause.COMMENT_NOT_FOUND,
+                        commentId, ErrorCause.COMMENT_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
+    }
+
+    private Comment getByIdWithLikes(UUID commentId) {
+        return commentRepo.getByIdWithLikes(commentId).orElseThrow(() -> new OnLineException(
+                "Comment not found, commentId: " + commentId,
+                ErrorCause.COMMENT_NOT_FOUND,
                 HttpStatus.NOT_FOUND));
     }
 
@@ -106,6 +114,7 @@ public class CommentService {
         return Comment.builder()
                 .user(user)
                 .text(dto.getText())
+                .likes(new HashSet<>())
                 .build();
     }
 }

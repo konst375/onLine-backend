@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,18 +55,22 @@ public class PostService {
                         HttpStatus.NOT_FOUND));
     }
 
-    public Post findPostWithTagsAndImages(UUID postId) {
-        Post post = postRepo.findByIdWithTagsAndImages(postId)
+    public Post findPostWithAllDependencies(UUID postId) {
+        Post post = postRepo.findByIdWithAllDependencies(postId)
                 .orElseThrow(() -> new OnLineException(
                         "Post not found, postId: " + postId,
                         ErrorCause.POST_NOT_FOUND,
                         HttpStatus.NOT_FOUND));
+        post.getLikes().forEach(like -> {
+            User user = like.getUser();
+            user.setImages(imgService.findUserImages(user));
+        });
         post.setImages(Lists.newArrayList(Sets.newLinkedHashSet(post.getImages())));
         return post;
     }
 
-    public BasePostDto getPost(UUID postId) {
-        return postMapper.toBasePostDto(findPostWithTagsAndImages(postId));
+    public BasePostDto getBasePostDtoById(UUID postId) {
+        return postMapper.toBasePostDto(findPostWithAllDependencies(postId));
     }
 
     public void deletePost(User user, UUID postId) {
@@ -78,7 +83,7 @@ public class PostService {
     }
 
     public Set<BasePostDto> toBasePostsDto(User user) {
-        return postMapper.toBasePostsDto(postRepo.findAllByAdminWithTagsAndImages(user)
+        return postMapper.toBasePostsDto(postRepo.findAllByAdminWithTagsImagesAndLikes(user)
                 .orElseGet(Collections::emptySet));
     }
 
@@ -87,6 +92,8 @@ public class PostService {
                 .text(dto.getText())
                 .tags(tagService.createTags(dto.getText()))
                 .images(imgService.createImages(dto.getImages()))
+                .likes(new HashSet<>())
+                .comments(new HashSet<>())
                 .build();
     }
 

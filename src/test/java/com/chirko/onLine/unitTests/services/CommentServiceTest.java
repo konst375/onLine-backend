@@ -54,13 +54,20 @@ class CommentServiceTest {
         // given
         User user = User.builder().id(UUID.randomUUID()).name("name").surname("surname").build();
 
-        Comment comment = Comment.builder().id(UUID.randomUUID()).text("some text").user(user).build();
+        Comment comment = Comment.builder()
+                .id(UUID.randomUUID())
+                .text("some text")
+                .user(user)
+                .likes(Collections.emptySet())
+                .build();
 
         CommentDto expectedDto = new CommentDto(
+                comment.getId().toString(),
                 comment.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
-                null
+                null,
+                0
         );
         // when
         CommentDto actualDto = commentService.toDto(comment);
@@ -82,10 +89,12 @@ class CommentServiceTest {
         when(commentRepo.findUserImages(any(Comment.class))).thenReturn(Optional.of(Collections.emptyList()));
 
         CommentDto expectedDto = new CommentDto(
+                null,
                 rqCommentDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
-                null
+                null,
+                0
         );
         // when
         CommentDto actualDto = commentService.addPostComment(post.getId(), user, rqCommentDto);
@@ -126,10 +135,12 @@ class CommentServiceTest {
         when(commentRepo.findUserImages(any(Comment.class))).thenReturn(Optional.of(Collections.emptyList()));
 
         CommentDto expectedDto = new CommentDto(
+                null,
                 rqCommentDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
-                null
+                null,
+                0
         );
         // when
         CommentDto actualDto = commentService.addImgComment(img.getId(), user, rqCommentDto);
@@ -164,27 +175,33 @@ class CommentServiceTest {
         User user2 = User.builder().id(UUID.randomUUID()).name("name2").surname("surname2").build();
         User user3 = User.builder().id(UUID.randomUUID()).name("name3").surname("surname3").build();
 
-        Comment comment1 = Comment.builder().id(UUID.randomUUID()).text("1").user(user1).build();
-        Comment comment2 = Comment.builder().id(UUID.randomUUID()).text("2").user(user2).build();
-        Comment comment3 = Comment.builder().id(UUID.randomUUID()).text("3").user(user3).build();
+        Comment comment1 = Comment.builder().id(UUID.randomUUID()).text("1").user(user1).likes(Collections.emptySet()).build();
+        Comment comment2 = Comment.builder().id(UUID.randomUUID()).text("2").user(user2).likes(Collections.emptySet()).build();
+        Comment comment3 = Comment.builder().id(UUID.randomUUID()).text("3").user(user3).likes(Collections.emptySet()).build();
 
         when(postService.getById(post.getId())).thenReturn(post);
         when(commentRepo.findAllByPostAndFetchUserImagesEagerly(post))
                 .thenReturn(Optional.of(Set.of(comment1, comment2, comment3)));
 
         Set<CommentDto> expectedCommentDtoSet = Set.of(
-                new CommentDto(comment1.getText(),
+                new CommentDto(comment1.getId().toString(),
+                        comment1.getText(),
                         new BaseUserDto(user1.getId().toString(), user1.getName(), user1.getSurname(), null),
                         null,
-                        null),
-                new CommentDto(comment2.getText(),
+                        null,
+                        0),
+                new CommentDto(comment2.getId().toString(),
+                        comment2.getText(),
                         new BaseUserDto(user2.getId().toString(), user2.getName(), user2.getSurname(), null),
                         null,
-                        null),
-                new CommentDto(comment3.getText(),
+                        null,
+                        0),
+                new CommentDto(comment3.getId().toString(),
+                        comment3.getText(),
                         new BaseUserDto(user3.getId().toString(), user3.getName(), user3.getSurname(), null),
                         null,
-                        null)
+                        null,
+                        0)
         );
         // when
         Set<CommentDto> actualCommentDtoSet = commentService.getPostComments(post.getId());
@@ -207,27 +224,33 @@ class CommentServiceTest {
         User user2 = User.builder().id(UUID.randomUUID()).name("name2").surname("surname2").build();
         User user3 = User.builder().id(UUID.randomUUID()).name("name3").surname("surname3").build();
 
-        Comment comment1 = Comment.builder().id(UUID.randomUUID()).text("1").user(user1).build();
-        Comment comment2 = Comment.builder().id(UUID.randomUUID()).text("2").user(user2).build();
-        Comment comment3 = Comment.builder().id(UUID.randomUUID()).text("3").user(user3).build();
+        Comment comment1 = Comment.builder().id(UUID.randomUUID()).text("1").user(user1).likes(Collections.emptySet()).build();
+        Comment comment2 = Comment.builder().id(UUID.randomUUID()).text("2").user(user2).likes(Collections.emptySet()).build();
+        Comment comment3 = Comment.builder().id(UUID.randomUUID()).text("3").user(user3).likes(Collections.emptySet()).build();
 
         when(imgService.getById(img.getId())).thenReturn(img);
-        when(commentRepo.findAllByImgAndFetchUserImagesEagerly(img))
+        when(commentRepo.findAllByImgWithUserImagesAndLikes(img))
                 .thenReturn(Optional.of(Set.of(comment1, comment2, comment3)));
 
         Set<CommentDto> expectedCommentDtoSet = Set.of(
-                new CommentDto(comment1.getText(),
+                new CommentDto(comment1.getId().toString(),
+                        comment1.getText(),
                         new BaseUserDto(user1.getId().toString(), user1.getName(), user1.getSurname(), null),
                         null,
-                        null),
-                new CommentDto(comment2.getText(),
+                        null,
+                        0),
+                new CommentDto(comment2.getId().toString(),
+                        comment2.getText(),
                         new BaseUserDto(user2.getId().toString(), user2.getName(), user2.getSurname(), null),
                         null,
-                        null),
-                new CommentDto(comment3.getText(),
+                        null,
+                        0),
+                new CommentDto(comment3.getId().toString(),
+                        comment3.getText(),
                         new BaseUserDto(user3.getId().toString(), user3.getName(), user3.getSurname(), null),
                         null,
-                        null)
+                        null,
+                        0)
         );
         // when
         Set<CommentDto> actualCommentDtoSet = commentService.getImgComments(img.getId());
@@ -245,19 +268,20 @@ class CommentServiceTest {
     void updateComment() {
         // given
         User user = User.builder().id(UUID.randomUUID()).name("name").surname("surname").build();
-        Comment comment = Comment.builder().id(UUID.randomUUID()).user(user).build();
+        Comment comment = Comment.builder().id(UUID.randomUUID()).user(user).likes(Collections.emptySet()).build();
 
         RQCommentDto rqCommentDto = new RQCommentDto();
         rqCommentDto.setText("some text for comment");
 
-        when(commentRepo.findById(comment.getId())).thenReturn(Optional.of(comment));
+        when(commentRepo.getByIdWithLikes(comment.getId())).thenReturn(Optional.of(comment));
 
         CommentDto expectedDto = new CommentDto(
+                comment.getId().toString(),
                 rqCommentDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
-                null
-        );
+                null,
+                0);
         // when
         CommentDto actualDto = commentService.updateComment(comment.getId(), user, rqCommentDto);
         // then
@@ -267,7 +291,7 @@ class CommentServiceTest {
     @Test
     void ifUpdateCommentAndAccessDenied() {
         // given
-        when(commentRepo.findById(any(UUID.class))).thenReturn(Optional.of(
+        when(commentRepo.getByIdWithLikes(any(UUID.class))).thenReturn(Optional.of(
                 Comment.builder()
                         .user(User.builder().id(UUID.randomUUID()).build())
                         .build()));
@@ -319,9 +343,9 @@ class CommentServiceTest {
     void getCommentWithUserImages() {
         // given
         Comment expectedComment = Comment.builder().id(UUID.randomUUID()).user(User.builder().build()).build();
-        when(commentRepo.findById(expectedComment.getId())).thenReturn(Optional.of(expectedComment));
+        when(commentRepo.getByIdWithLikes(expectedComment.getId())).thenReturn(Optional.of(expectedComment));
         // when
-        Comment actualComment = commentService.getCommentWithUserImages(expectedComment.getId());
+        Comment actualComment = commentService.getCommentWithUserImagesAndLikes(expectedComment.getId());
         // then
         assertEquals(expectedComment, actualComment);
     }

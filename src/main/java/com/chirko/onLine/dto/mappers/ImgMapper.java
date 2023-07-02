@@ -1,8 +1,10 @@
 package com.chirko.onLine.dto.mappers;
 
-import com.chirko.onLine.dto.response.ImgDto;
+import com.chirko.onLine.dto.response.img.BaseImgDto;
+import com.chirko.onLine.dto.response.img.FullImgDto;
 import com.chirko.onLine.entities.Img;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +12,16 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, uses = {CommentMapper.class})
 public interface ImgMapper {
-    ImgDto toDto(Img entity);
+    BaseImgDto toDto(Img entity);
 
-    Set<ImgDto> imagesToImagesDto(Set<Img> images);
+    Set<BaseImgDto> imagesToImagesDto(Set<Img> images);
 
-    List<ImgDto> imagesToImagesDto(List<Img> images);
+    List<BaseImgDto> imagesToImagesDto(List<Img> images);
+
+    @Mapping(target = "baseImgDto", source = "entity")
+    @Mapping(target = "likes", expression = "java(entity.getLikes().size())")
+    @Mapping(target = "commentsAmount", expression = "java(entity.getComments().size())")
+    FullImgDto toFullDto(Img entity);
 }

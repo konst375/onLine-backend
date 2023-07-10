@@ -14,7 +14,6 @@ import java.util.Set;
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         imports = {ImgMapper.class, UserMapper.class, TagMapper.class, CommunityMapper.class})
 public interface PostMapper {
-    // TODO: 26.06.2023 do something with this shit
     @Mapping(target = "likes", expression = "java(entity.getLikes().size())")
     @Mapping(target = "comments", expression = "java(entity.getComments().size())")
     BasePostDto toBasePostDto(Post entity);

@@ -41,6 +41,14 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BasePostDto> updatePost(RQPostDto dto,
+                                                  @PathVariable(name = "id") UUID postId,
+                                                  @AuthenticationPrincipal User user) {
+        BasePostDto response = postService.updatePost(postId, user, dto);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(@PathVariable(name = "id") UUID postId,
                                              @AuthenticationPrincipal User user) {

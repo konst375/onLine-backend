@@ -98,4 +98,8 @@ public class ImgService {
         });
         return img;
     }
+
+    public void deleteImages(List<Img> images) {
+        imgRepo.deleteAll(images);
+    }
 }

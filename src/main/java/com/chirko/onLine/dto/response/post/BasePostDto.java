@@ -14,6 +14,7 @@ public record BasePostDto(
         String text,
         List<BaseImgDto> images,
         Set<TagDto> tags,
+        Timestamp createdDate,
         Timestamp modifiedDate,
         Owner owner,
         int likes,

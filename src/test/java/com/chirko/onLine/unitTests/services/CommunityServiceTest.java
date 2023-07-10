@@ -205,6 +205,7 @@ class CommunityServiceTest {
                         Collections.emptyList(),
                         null,
                         null,
+                        null,
                         Owner.COMMUNITY,
                         0,
                         Collections.emptySet(),

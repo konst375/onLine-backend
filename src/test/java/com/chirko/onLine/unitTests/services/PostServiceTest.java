@@ -72,6 +72,7 @@ class PostServiceTest {
                         Collections.emptyList(),
                         Collections.emptySet(),
                         null,
+                        null,
                         Owner.USER,
                         0,
                         Collections.emptySet(),
@@ -106,6 +107,7 @@ class PostServiceTest {
                         Collections.emptyList(),
                         Collections.emptySet(),
                         null,
+                        null,
                         Owner.USER,
                         0,
                         Collections.emptySet(),
@@ -139,6 +141,7 @@ class PostServiceTest {
                         rqPostDto.getText(),
                         Collections.emptyList(),
                         Collections.emptySet(),
+                        null,
                         null,
                         Owner.COMMUNITY,
                         0,
@@ -193,6 +196,7 @@ class PostServiceTest {
                 post.getId().toString(),
                 post.getText(),
                 Collections.emptyList(),
+                null,
                 null,
                 null,
                 Owner.USER,
@@ -313,8 +317,9 @@ class PostServiceTest {
                 post.getText(),
                 null,
                 null,
-                post.getModifiedDate(),
                 null,
+                post.getModifiedDate(),
+                post.getOwner(),
                 0,
                 Collections.emptySet(),
                 0);
@@ -338,11 +343,11 @@ class PostServiceTest {
         when(postRepo.findAllByAdminWithTagsImagesAndLikes(any(User.class))).thenReturn(Optional.of(posts));
         Set<BasePostDto> expected = Set.of(
                 new BasePostDto(post1.getId().toString(), post1.getText(), null, null, null,
-                        Owner.USER, 0, Collections.emptySet(), 0),
+                        null, Owner.USER, 0, Collections.emptySet(), 0),
                 new BasePostDto(post2.getId().toString(), post2.getText(), null, null, null,
-                        Owner.USER, 0, Collections.emptySet(), 0),
+                        null, Owner.USER, 0, Collections.emptySet(), 0),
                 new BasePostDto(post3.getId().toString(), post3.getText(), null, null, null,
-                        Owner.USER, 0, Collections.emptySet(), 0)
+                        null, Owner.USER, 0, Collections.emptySet(), 0)
         );
         // when
         Set<BasePostDto> actual = postService.toBasePostsDto(user);
@@ -356,5 +361,40 @@ class PostServiceTest {
         Set<BasePostDto> actual = postService.toBasePostsDto(User.builder().build());
         // then
         assertEquals(Collections.emptySet(), actual);
+    }
+
+    @Test
+    void updatePost() {
+        // given
+        User user = User.builder().id(UUID.randomUUID()).build();
+        Post post = Post.builder()
+                .id(UUID.randomUUID())
+                .user(user)
+                .likes(Collections.emptySet())
+                .images(Collections.emptyList())
+                .comments(Collections.emptySet())
+                .build();
+        RQPostDto dto = new RQPostDto("updated", Collections.emptyList());
+
+        BasePostDto expected = new BasePostDto(
+                post.getId().toString(),
+                dto.getText(),
+                Collections.emptyList(),
+                Collections.emptySet(),
+                null,
+                null,
+                Owner.USER,
+                0,
+                Collections.emptySet(),
+                0);
+
+        when(postRepo.findByIdWithAllDependencies(post.getId())).thenReturn(Optional.of(post));
+        // when
+        BasePostDto actual = postService.updatePost(post.getId(), user, dto);
+        // then
+        assertEquals(expected, actual);
+        verify(tagService, times(1)).createTags("updated");
+        verify(imgService, times(1)).createImages(Collections.emptyList());
+        verify(imgService, times(1)).deleteImages(Collections.emptyList());
     }
 }

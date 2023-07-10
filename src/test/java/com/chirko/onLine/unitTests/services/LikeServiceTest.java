@@ -139,6 +139,7 @@ class LikeServiceTest {
                 null,
                 null,
                 null,
+                null,
                 Owner.USER,
                 1,
                 Set.of(new BaseUserDto(user.getId().toString(), null, null, null)),

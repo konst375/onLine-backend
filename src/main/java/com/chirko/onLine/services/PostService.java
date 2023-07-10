@@ -6,6 +6,7 @@ import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
 import com.chirko.onLine.entities.Community;
+import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
@@ -16,11 +17,9 @@ import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -74,7 +73,8 @@ public class PostService {
     }
 
     public void deletePost(User user, UUID postId) {
-        Post post = getPostAndCheckUserAccess(user, postId);
+        Post post = getById(postId);
+        checkUserAccess(user, post);
         postRepo.delete(post);
     }
 
@@ -87,6 +87,27 @@ public class PostService {
                 .orElseGet(Collections::emptySet));
     }
 
+    @Transactional
+    public BasePostDto updatePost(UUID postId, User user, RQPostDto dto) {
+        Post post = findPostWithAllDependencies(postId);
+        checkUserAccess(user, post);
+        post.setText(dto.getText());
+        post.setTags(tagService.createTags(dto.getText()));
+        List<Img> oldImages = post.getImages();
+        post.setImages(Optional.ofNullable(imgService.createImages(dto.getImages()))
+                .orElseGet(Collections::emptyList).stream()
+                .map(newImg -> oldImages.stream()
+                        .filter(oldImg -> Arrays.equals(oldImg.getImg(), newImg.getImg()))
+                        .findFirst()
+                        .orElse(newImg))
+                .peek(img -> img.setPost(post))
+                .toList());
+        imgService.deleteImages(oldImages.stream()
+                .filter(oldImg -> !post.getImages().contains(oldImg))
+                .toList());
+        return postMapper.toBasePostDto(post);
+    }
+
     private Post buildPost(RQPostDto dto) {
         return Post.builder()
                 .text(dto.getText())
@@ -97,20 +118,23 @@ public class PostService {
                 .build();
     }
 
-    private Post getPostAndCheckUserAccess(User user, UUID postId) {
+    private void checkUserAccess(User user, Post post) {
         OnLineException exception = new OnLineException(
                 "Post editing permission denied, userId: " + user.getId(),
                 ErrorCause.ACCESS_DENIED,
                 HttpStatus.FORBIDDEN);
-        Post post = getById(postId);
-        if (post.getCommunity() != null) {
-            if (!post.getCommunity().getAdmin().equals(user)
-                    && !communityService.getModerators(post.getCommunity().getId()).contains(user))
-                throw exception;
-        } else {
-            if (!post.getUser().equals(user))
-                throw exception;
+        switch (post.getOwner()) {
+            case COMMUNITY -> {
+                if (!post.getCommunity().getAdmin().equals(user)
+                        && !communityService.getModerators(post.getCommunity().getId()).contains(user)) {
+                    throw exception;
+                }
+            }
+            case USER -> {
+                if (!post.getUser().equals(user)) {
+                    throw exception;
+                }
+            }
         }
-        return post;
     }
 }

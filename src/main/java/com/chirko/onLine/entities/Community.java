@@ -18,10 +18,9 @@ import java.util.Set;
 @NamedEntityGraph(
         name = "Community-with-dependencies",
         attributeNodes = {@NamedAttributeNode("tags"), @NamedAttributeNode("images"), @NamedAttributeNode("followers")})
-
 @NamedEntityGraph(
         name = "Community-with-posts",
-        attributeNodes = {@NamedAttributeNode(value = "posts", subgraph = "posts-subgraph")},
+        attributeNodes = @NamedAttributeNode(value = "posts", subgraph = "posts-subgraph"),
         subgraphs = {
                 @NamedSubgraph(
                         name = "posts-subgraph",

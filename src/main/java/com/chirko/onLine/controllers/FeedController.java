@@ -18,9 +18,15 @@ import java.util.Set;
 public class FeedController {
     private final FeedService feedService;
 
-    @GetMapping
-    public ResponseEntity<Set<BasePostDto>> getFeed(@AuthenticationPrincipal User user) {
-        Set<BasePostDto> posts = feedService.getFeed(user);
+    @GetMapping("/subscriptions")
+    public ResponseEntity<Set<BasePostDto>> getSubscriptionFeed(@AuthenticationPrincipal User user) {
+        Set<BasePostDto> posts = feedService.getSubscriptionFeed(user.getId());
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/recommendations")
+    public ResponseEntity<Set<BasePostDto>> getRecommendationFeed(@AuthenticationPrincipal User user) {
+        Set<BasePostDto> posts = feedService.getRecommendationFeed(user.getId());
         return ResponseEntity.ok(posts);
     }
 }

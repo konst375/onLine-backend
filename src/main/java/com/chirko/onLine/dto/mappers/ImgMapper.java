@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, uses = {CommentMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, uses = CommentMapper.class)
 public interface ImgMapper {
     BaseImgDto toDto(Img entity);
 

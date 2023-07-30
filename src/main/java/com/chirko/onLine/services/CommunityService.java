@@ -3,7 +3,7 @@ package com.chirko.onLine.services;
 import com.chirko.onLine.dto.mappers.CommunityMapper;
 import com.chirko.onLine.dto.mappers.PostMapper;
 import com.chirko.onLine.dto.mappers.UserMapper;
-import com.chirko.onLine.dto.request.community.RQRegisterCommunityDto;
+import com.chirko.onLine.dto.request.RQRegisterCommunityDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;

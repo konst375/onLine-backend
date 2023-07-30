@@ -17,24 +17,24 @@ CREATE OR REPLACE TRIGGER on_update_community
     WHEN (pg_trigger_depth() = 1)
 EXECUTE PROCEDURE update_community_modified_date();
 
--- trigger on update friend
-CREATE OR REPLACE FUNCTION update_friend_modified_date()
+-- trigger on update friendship
+CREATE OR REPLACE FUNCTION update_friendship_modified_date()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
-    UPDATE friend
+    UPDATE friendship
     SET modified_date = now()::TIMESTAMP
     WHERE id = NEW.id;
 END;
 $$;
-CREATE OR REPLACE TRIGGER on_update_friend
+CREATE OR REPLACE TRIGGER on_update_friendship
     AFTER UPDATE
-    ON friend
+    ON friendship
     FOR EACH ROW
     WHEN (pg_trigger_depth() = 1)
-EXECUTE PROCEDURE update_friend_modified_date();
+EXECUTE PROCEDURE update_friendship_modified_date();
 
 -- trigger on update tag
 CREATE OR REPLACE FUNCTION update_tag_modified_date()

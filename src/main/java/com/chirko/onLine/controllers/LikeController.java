@@ -18,30 +18,26 @@ import java.util.UUID;
 public class LikeController {
     private final LikeService likeService;
 
-    @PostMapping("/comment/{id}")
-    public ResponseEntity<CommentDto> likeComment(@PathVariable(name = "id") UUID commentId,
-                                                  @AuthenticationPrincipal User user) {
+    @PostMapping("/comment/{commentId}")
+    public ResponseEntity<CommentDto> likeComment(@PathVariable UUID commentId, @AuthenticationPrincipal User user) {
         CommentDto response = likeService.likeComment(commentId, user);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/img/{id}")
-    public ResponseEntity<FullImgDto> likeImg(@PathVariable(name = "id") UUID imgId,
-                                              @AuthenticationPrincipal User user) {
+    @PostMapping("/img/{imgId}")
+    public ResponseEntity<FullImgDto> likeImg(@PathVariable UUID imgId, @AuthenticationPrincipal User user) {
         FullImgDto response = likeService.likeImg(imgId, user);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/post/{id}")
-    public ResponseEntity<BasePostDto> likePost(@PathVariable(name = "id") UUID postId,
-                                                @AuthenticationPrincipal User user) {
+    @PostMapping("/post/{postId}")
+    public ResponseEntity<BasePostDto> likePost(@PathVariable UUID postId, @AuthenticationPrincipal User user) {
         BasePostDto response = likeService.likePost(postId, user);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> unlike(@PathVariable(name = "id") UUID id,
-                                         @AuthenticationPrincipal User user) {
+    public ResponseEntity<String> unlike(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         likeService.unlike(id, user);
         return ResponseEntity.ok("Successful unliked");
     }

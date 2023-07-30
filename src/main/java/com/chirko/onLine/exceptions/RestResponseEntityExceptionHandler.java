@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(value = {OnLineException.class})
+    @ExceptionHandler(value = OnLineException.class)
     protected ResponseEntity<Object> handleOnLineException(OnLineException ex) {
         ResponseException response = new ResponseException(ex.getMessage(), ex.getErrorCause(),
                 new Timestamp(System.currentTimeMillis()));

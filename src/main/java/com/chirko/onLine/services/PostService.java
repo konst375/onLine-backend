@@ -5,10 +5,7 @@ import com.chirko.onLine.dto.request.RQPostDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
-import com.chirko.onLine.entities.Community;
-import com.chirko.onLine.entities.Img;
-import com.chirko.onLine.entities.Post;
-import com.chirko.onLine.entities.User;
+import com.chirko.onLine.entities.*;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.PostRepo;
@@ -32,7 +29,9 @@ public class PostService {
 
     public UserPostDto createUserPost(User user, RQPostDto dto) {
         Post post = buildPost(dto);
-        post.getImages().forEach(img -> img.setPost(post));
+        if (post.getImages() != null) {
+            post.getImages().forEach(img -> img.setPost(post));
+        }
         user.setImages(imgService.findUserImages(user));
         post.setUser(user);
         return postMapper.toUserPostDto(postRepo.save(post));
@@ -40,7 +39,9 @@ public class PostService {
 
     public CommunityPostDto createCommunityPost(UUID communityId, RQPostDto dto) {
         Post post = buildPost(dto);
-        post.getImages().forEach(img -> img.setPost(post));
+        if (post.getImages() != null) {
+            post.getImages().forEach(img -> img.setPost(post));
+        }
         Community community = communityService.getCommunity(communityId);
         post.setCommunity(community);
         return postMapper.toCommunityPostDto(postRepo.save(post));
@@ -68,6 +69,12 @@ public class PostService {
         return post;
     }
 
+    public Set<Post> findPostsWithAllDependencies(Set<UUID> postsIds) {
+        return postRepo.findAllByIdsWithAllDependencies(postsIds).orElseThrow(() -> new OnLineException(
+                ErrorCause.POST_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
+    }
+
     public BasePostDto getBasePostDtoById(UUID postId) {
         return postMapper.toBasePostDto(findPostWithAllDependencies(postId));
     }
@@ -82,7 +89,11 @@ public class PostService {
         return postMapper.toBasePostDto(post);
     }
 
-    public Set<BasePostDto> toBasePostsDto(User user) {
+    public Set<BasePostDto> toBasePostsDto(Set<Post> posts) {
+        return postMapper.toBasePostsDto(posts);
+    }
+
+    public Set<BasePostDto> getBasePostsDtoForUser(User user) {
         return postMapper.toBasePostsDto(postRepo.findAllByAdminWithTagsImagesAndLikes(user)
                 .orElseGet(Collections::emptySet));
     }
@@ -136,5 +147,38 @@ public class PostService {
                 }
             }
         }
+    }
+
+    public Set<Post> getCommunityPosts(Set<Community> communities, Date startPoint) {
+        return postRepo.findCommunitiesPostsAfterStartDate(communities, startPoint)
+                .orElseThrow(() -> new OnLineException(
+                        "Communities posts not found",
+                        ErrorCause.POST_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
+    }
+
+    public Set<Post> getFriendsPosts(Set<User> friends, Date startPoint) {
+        return postRepo.findUsersPostsAfterStartDate(friends, startPoint).orElseThrow(() -> new OnLineException(
+                "Users posts not found",
+                ErrorCause.POST_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
+    }
+
+    public Set<Post> findRecommendations(Set<Tag> tags, Date startPoint) {
+        return postRepo.findRecommendations(tags, startPoint)
+                .orElseThrow(() -> new OnLineException(
+                        "Tags posts not found",
+                        ErrorCause.POST_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
+    }
+
+    public Optional<Post> getByIdWithTags(UUID id) {
+        if (postRepo.existsById(id)) {
+            return Optional.of(postRepo.findByIdWithTags(id).orElseThrow(() -> new OnLineException(
+                    "Post not found, postId: " + id,
+                    ErrorCause.POST_NOT_FOUND,
+                    HttpStatus.NOT_FOUND)));
+        }
+        return Optional.empty();
     }
 }

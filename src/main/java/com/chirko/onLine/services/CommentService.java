@@ -23,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CommentService {
     private final PostService postService;
+    private final TagScoresService tagScoresService;
     private final ImgService imgService;
     private final CommentMapper commentMapper;
     private final CommentRepo commentRepo;
@@ -33,13 +34,15 @@ public class CommentService {
 
     public CommentDto addPostComment(UUID postId, User user, RQCommentDto dto) {
         Comment comment = buildComment(user, dto);
-        comment.setPost(postService.getById(postId));
+        Post post = postService.getById(postId);
+        comment.setPost(post);
         Comment savedComment = commentRepo.save(comment);
         savedComment.getUser().setImages(commentRepo.findUserImages(savedComment)
                 .orElseThrow(() -> new OnLineException(
                         "User not found, userId: " + user.getId(),
                         ErrorCause.USER_NOT_FOUND,
                         HttpStatus.NOT_FOUND)));
+        tagScoresService.writeDownThatPostCommented(user, post);
         return commentMapper.toDto(savedComment);
     }
 

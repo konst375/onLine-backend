@@ -20,6 +20,7 @@ public class LikeService {
     private final CommentService commentService;
     private final ImgService imgService;
     private final PostService postService;
+    private final TagScoresService tagScoresService;
     private final LikeRepo likeRepo;
 
     public CommentDto likeComment(UUID commentId, User user) {
@@ -62,11 +63,13 @@ public class LikeService {
         like.setPost(post);
         post.getLikes().add(like);
         likeRepo.save(like);
+        tagScoresService.writeDownThatPostLiked(user, post);
         return postService.toBasePostDto(post);
     }
 
     @Transactional
     public void unlike(UUID id, User user) {
+        postService.getByIdWithTags(id).ifPresent(post -> tagScoresService.writeDownThatPostUnliked(user, post));
         likeRepo.deleteByUserIdAndParentId(id, user.getId());
     }
 

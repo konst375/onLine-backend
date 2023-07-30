@@ -11,7 +11,9 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.Set;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = {ImgMapper.class, UserMapper.class, TagMapper.class})
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        imports = {ImgMapper.class, UserMapper.class, TagMapper.class})
 public interface CommunityMapper {
     BaseCommunityDto toBaseDto(Community entity);
 

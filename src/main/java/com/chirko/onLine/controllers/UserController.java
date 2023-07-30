@@ -1,5 +1,6 @@
 package com.chirko.onLine.controllers;
 
+import com.chirko.onLine.dto.request.RQViewedPostsDto;
 import com.chirko.onLine.dto.response.user.UserPageDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.services.UserService;
@@ -31,8 +32,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserPageDto> getUserPage(@PathVariable(name = "id") UUID userId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserPageDto> getUserPage(@PathVariable UUID userId) {
         UserPageDto response = userService.getUserPage(userId);
         return ResponseEntity.ok(response);
     }
@@ -41,5 +42,18 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@AuthenticationPrincipal User user) {
         userService.deleteUser(user);
         return ResponseEntity.ok("Successful deleted");
+    }
+
+    @PostMapping("/mark-viewed-posts")
+    public ResponseEntity<String> markPostsViewed(@ModelAttribute RQViewedPostsDto dto,
+                                                  @AuthenticationPrincipal User user) {
+        userService.markPostsViewed(user.getId(), dto.getViewedPostsIds());
+        return ResponseEntity.ok("Successful marked");
+    }
+
+    @PostMapping("/log-activity")
+     public ResponseEntity<String> logTheActiveDay(@AuthenticationPrincipal User user) {
+        userService.logTheActiveDay(user);
+        return ResponseEntity.ok("Successful logged");
     }
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,11 @@ public class Post extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToMany
+    @JoinTable(name = "viewed_posts", joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id"))
+    private Set<User> viewers = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "community_id", referencedColumnName = "id")
@@ -43,6 +49,9 @@ public class Post extends AbstractEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<Like> likes;
 
+    @Transient
+    private int scores;
+
     // it used by mapper
     public Owner getOwner() {
         if (this.getUser() != null) {
@@ -53,6 +62,7 @@ public class Post extends AbstractEntity {
         return null;
     }
 
+    // used by mapper
     public Set<User> getWhoLiked() {
         return this.getLikes().stream()
                 .map(Like::getUser)

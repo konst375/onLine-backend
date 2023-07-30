@@ -27,31 +27,29 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/create/{id}")
+    @PostMapping("/create/{communityId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<CommunityPostDto> createCommunityPost(RQPostDto dto,
-                                                                @PathVariable(name = "id") UUID communityId) {
+    public ResponseEntity<CommunityPostDto> createCommunityPost(RQPostDto dto, @PathVariable UUID communityId) {
         CommunityPostDto response = postService.createCommunityPost(communityId, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BasePostDto> getPost(@PathVariable(name = "id") UUID postId) {
+    @GetMapping("/{postId}")
+    public ResponseEntity<BasePostDto> getPost(@PathVariable UUID postId) {
         BasePostDto response = postService.getBasePostDtoById(postId);
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{postId}")
     public ResponseEntity<BasePostDto> updatePost(RQPostDto dto,
-                                                  @PathVariable(name = "id") UUID postId,
+                                                  @PathVariable UUID postId,
                                                   @AuthenticationPrincipal User user) {
         BasePostDto response = postService.updatePost(postId, user, dto);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable(name = "id") UUID postId,
-                                             @AuthenticationPrincipal User user) {
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable UUID postId, @AuthenticationPrincipal User user) {
         postService.deletePost(user, postId);
         return ResponseEntity.ok("Successful deleted");
     }

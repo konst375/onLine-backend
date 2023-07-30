@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -22,5 +23,37 @@ public interface UserRepo extends CrudRepository<User, UUID> {
             WHERE u.id = :id
             """)
     @EntityGraph(attributePaths = "images")
-    Optional<User> findUserByIdAndFetchImagesEagerly(@Param("id") UUID id);
+    Optional<User> findByIdWithImages(@Param("id") UUID userId);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id = :id
+            """)
+    @EntityGraph(attributePaths = {"comments", "communities", "viewedPosts"}, type = EntityGraph.EntityGraphType.LOAD)
+    Optional<User> findByIdWithInterestIndicators(@Param("id") UUID userId);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id = :id
+            """)
+    @EntityGraph(attributePaths = "viewedPosts", type = EntityGraph.EntityGraphType.LOAD)
+    Optional<User> findUserWithViewedPosts(@Param("id") UUID userId);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id = :id
+            """)
+    @EntityGraph(attributePaths = "chats")
+    Optional<User> findByIdWithChats(@Param("id") UUID userId);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id IN :ids
+            """)
+    @EntityGraph(attributePaths = "images")
+    Optional<Set<User>> findAllByIdWithImages(@Param("ids") Set<UUID> ids);
 }

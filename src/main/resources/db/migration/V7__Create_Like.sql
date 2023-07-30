@@ -26,4 +26,4 @@ CREATE OR REPLACE TRIGGER on_update_likes
     ON likes
     FOR EACH ROW
     WHEN (pg_trigger_depth() = 1)
-EXECUTE PROCEDURE update_friend_modified_date();
+EXECUTE PROCEDURE update_likes_modified_date();

@@ -17,8 +17,8 @@ import java.util.UUID;
 public class ImgController {
     private final ImgService imgService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FullImgDto> getImg(@PathVariable(name = "id") UUID imgId) {
+    @GetMapping("/{imgId}")
+    public ResponseEntity<FullImgDto> getImg(@PathVariable UUID imgId) {
         FullImgDto response = imgService.getFullImgDto(imgId);
         return ResponseEntity.ok(response);
     }

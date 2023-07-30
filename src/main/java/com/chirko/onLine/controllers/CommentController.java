@@ -19,45 +19,44 @@ import java.util.UUID;
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping("/post/{id}")
-    public ResponseEntity<CommentDto> addPostComment(@PathVariable(name = "id") UUID postId,
+    @PostMapping("/post/{postId}")
+    public ResponseEntity<CommentDto> addPostComment(@PathVariable UUID postId,
                                                      @RequestBody RQCommentDto dto,
                                                      @AuthenticationPrincipal User user) {
         CommentDto response = commentService.addPostComment(postId, user, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/post/{id}")
-    public ResponseEntity<Set<CommentDto>> getPostComments(@PathVariable(name = "id") UUID postId) {
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<Set<CommentDto>> getPostComments(@PathVariable UUID postId) {
         Set<CommentDto> response = commentService.getPostComments(postId);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/img/{id}")
-    public ResponseEntity<CommentDto> addImgComment(@PathVariable(name = "id") UUID imgId,
+    @PostMapping("/img/{imgId}")
+    public ResponseEntity<CommentDto> addImgComment(@PathVariable UUID imgId,
                                                     @RequestBody RQCommentDto dto,
                                                     @AuthenticationPrincipal User user) {
         CommentDto response = commentService.addImgComment(imgId, user, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/img/{id}")
-    public ResponseEntity<Set<CommentDto>> getImgComments(@PathVariable(name = "id") UUID imgId) {
+    @GetMapping("/img/{imgId}")
+    public ResponseEntity<Set<CommentDto>> getImgComments(@PathVariable UUID imgId) {
         Set<CommentDto> response = commentService.getImgComments(imgId);
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable(name = "id") UUID commentId,
-                                                @RequestBody RQCommentDto dto,
-                                                @AuthenticationPrincipal User user) {
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable UUID commentId,
+                                                    @RequestBody RQCommentDto dto,
+                                                    @AuthenticationPrincipal User user) {
         CommentDto response = commentService.updateComment(commentId, user, dto);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteComment(@PathVariable(name = "id") UUID commentId,
-                                                @AuthenticationPrincipal User user) {
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable UUID commentId, @AuthenticationPrincipal User user) {
         commentService.deleteComment(commentId, user);
         return ResponseEntity.ok("Comment successful deleted");
     }

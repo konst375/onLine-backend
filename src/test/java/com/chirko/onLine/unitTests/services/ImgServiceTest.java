@@ -5,11 +5,13 @@ import com.chirko.onLine.dto.mappers.ImgMapperImpl;
 import com.chirko.onLine.dto.mappers.UserMapperImpl;
 import com.chirko.onLine.dto.response.img.BaseImgDto;
 import com.chirko.onLine.entities.Img;
+import com.chirko.onLine.entities.Like;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.ImgRepo;
 import com.chirko.onLine.services.ImgService;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -139,6 +142,18 @@ class ImgServiceTest {
         BaseImgDto actualDto = imgService.toDto(img);
         // then
         assertEquals(expectedDto, actualDto);
+    }
+
+    @Test
+    void getFullImgById() {
+        Img expected = Img.builder()
+                .id(UUID.randomUUID())
+                .likes(Sets.newHashSet(Like.builder().id(UUID.randomUUID()).user(User.builder().build()).build()))
+                .build();
+        when(imgRepo.findByIdWithLikesAndComments(expected.getId())).thenReturn(Optional.of(expected));
+        when(imgRepo.findImagesByUser(any())).thenReturn(Optional.of(Collections.emptyList()));
+        Img actual = imgService.getFullImgById(expected.getId());
+        assertEquals(expected, actual);
     }
 
     private byte[] getExpectedBytes() throws IOException {

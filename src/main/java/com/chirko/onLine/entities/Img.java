@@ -36,12 +36,17 @@ public class Img extends AbstractEntity {
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;
 
+    @OneToOne
+    @JoinColumn(name = "chat_id",  referencedColumnName = "id")
+    private Chat chat;
+
     @OneToMany(mappedBy = "img")
     private Set<Comment> comments;
 
     @OneToMany(mappedBy = "img", cascade = CascadeType.ALL)
     private Set<Like> likes;
 
+    // used by mapper
     public Set<User> getWhoLiked() {
         return this.getLikes().stream()
                 .map(Like::getUser)

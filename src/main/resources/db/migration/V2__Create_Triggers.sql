@@ -73,3 +73,23 @@ CREATE OR REPLACE TRIGGER on_update_post
     FOR EACH ROW
     WHEN (pg_trigger_depth() = 1)
 EXECUTE PROCEDURE update_post_modified_date();
+
+-- trigger on update chat
+CREATE OR REPLACE FUNCTION update_chat_modified_date()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE chat
+    SET modified_date = now()::TIMESTAMP
+    WHERE id = NEW.id;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER on_update_chat
+    AFTER UPDATE
+    ON chat
+    FOR EACH ROW
+    WHEN (pg_trigger_depth() = 1)
+EXECUTE PROCEDURE update_chat_modified_date();

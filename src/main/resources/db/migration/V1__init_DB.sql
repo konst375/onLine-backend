@@ -20,12 +20,29 @@ CREATE TABLE post
     modified_date TIMESTAMP NOT NULL
 );
 
+CREATE TABLE chat
+(
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_date  TIMESTAMP NOT NULL,
+    modified_date TIMESTAMP NOT NULL,
+    admin         UUID,
+    name          TEXT
+);
+
+CREATE TABLE user_chat
+(
+    id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chat_id   UUID REFERENCES chat,
+    member_id UUID REFERENCES member
+);
+
 CREATE TABLE img
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     img           BYTEA     NOT NULL,
     post_id       UUID REFERENCES post,
     member_id     UUID REFERENCES member,
+    chat_id       UUID REFERENCES chat,
     is_avatar     BOOLEAN,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL

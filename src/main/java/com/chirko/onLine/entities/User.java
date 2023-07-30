@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,13 +50,11 @@ public class User extends AbstractEntity implements UserDetails {
     @OneToMany(mappedBy = "user")
     private Set<Post> posts;
 
+    @ManyToMany(mappedBy = "viewers")
+    private Set<Post> viewedPosts = new HashSet<>();
+
     @OneToMany(mappedBy = "user")
     private Set<Comment> comments;
-
-    @OneToMany
-    @JoinTable(name = "friend", joinColumns = @JoinColumn(name = "member_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id"))
-    private Set<User> friends;
 
     @OneToMany(mappedBy = "admin")
     private Set<Community> ownedCommunities;
@@ -65,6 +64,9 @@ public class User extends AbstractEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private Set<Like> likes;
+
+    @ManyToMany(mappedBy = "participants")
+    private Set<Chat> chats;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

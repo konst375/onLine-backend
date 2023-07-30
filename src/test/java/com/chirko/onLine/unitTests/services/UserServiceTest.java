@@ -9,7 +9,6 @@ import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.UserRepo;
 import com.chirko.onLine.services.ImgService;
-import com.chirko.onLine.services.PostService;
 import com.chirko.onLine.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,8 +42,8 @@ class UserServiceTest {
     private UserService userService;
     @MockBean
     private ImgService imgService;
-    @MockBean
-    private PostService postService;
+//    @MockBean
+//    private PostService postService;
     @MockBean
     private UserRepo userRepo;
 
@@ -74,7 +73,7 @@ class UserServiceTest {
                 .images(new ArrayList<>())
                 .posts(Collections.emptySet())
                 .build();
-        when(userRepo.findUserByIdAndFetchImagesEagerly(userId)).thenReturn(Optional.of(expectedUser));
+        when(userRepo.findByIdWithImages(userId)).thenReturn(Optional.of(expectedUser));
         // expected avatar creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass()
                 .getClassLoader()
@@ -122,7 +121,7 @@ class UserServiceTest {
                 .img(oldUserAvatarBytes)
                 .build();
         expectedUser.getImages().add(oldAvatar);
-        when(userRepo.findUserByIdAndFetchImagesEagerly(userId)).thenReturn(Optional.of(expectedUser));
+        when(userRepo.findByIdWithImages(userId)).thenReturn(Optional.of(expectedUser));
         when(userRepo.save(any(User.class))).then(AdditionalAnswers.returnsFirstArg());
         // expected avatar creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass().getClassLoader()
@@ -165,7 +164,7 @@ class UserServiceTest {
                 .images(new ArrayList<>())
                 .posts(Collections.emptySet())
                 .build();
-        when(userRepo.findUserByIdAndFetchImagesEagerly(userId)).thenReturn(Optional.of(expectedUser));
+        when(userRepo.findByIdWithImages(userId)).thenReturn(Optional.of(expectedUser));
         // expected cover creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass()
                 .getClassLoader()
@@ -213,7 +212,7 @@ class UserServiceTest {
                 .img(oldUserCoverBytes)
                 .build();
         expectedUser.getImages().add(oldCover);
-        when(userRepo.findUserByIdAndFetchImagesEagerly(userId)).thenReturn(Optional.of(expectedUser));
+        when(userRepo.findByIdWithImages(userId)).thenReturn(Optional.of(expectedUser));
         when(userRepo.save(any(User.class))).then(AdditionalAnswers.returnsFirstArg());
         // expected cover creates and mocked imgService set up
         byte[] expectedImgBytes = requireNonNull(getClass().getClassLoader()
@@ -251,7 +250,7 @@ class UserServiceTest {
                 .images(Collections.emptyList())
                 .posts(Collections.emptySet())
                 .build();
-        when(userRepo.findUserByIdAndFetchImagesEagerly(userId)).thenReturn(Optional.of(expectedUser));
+        when(userRepo.findByIdWithImages(userId)).thenReturn(Optional.of(expectedUser));
         // then
         UserPageDto actualDto = userService.getUserPage(userId);
         // when

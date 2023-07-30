@@ -16,13 +16,12 @@ CREATE TABLE tag
     modified_date TIMESTAMP NOT NULL
 );
 
-CREATE TABLE friend
+CREATE TABLE friendship
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    member_id     UUID REFERENCES member,
-    friend_id     UUID REFERENCES member,
+    recipient_id  UUID REFERENCES member,
+    sender_id     UUID REFERENCES member,
     status        TEXT      NOT NULL,
-    relation      TEXT,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL
 );

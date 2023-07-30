@@ -350,7 +350,7 @@ class PostServiceTest {
                         null, Owner.USER, 0, Collections.emptySet(), 0)
         );
         // when
-        Set<BasePostDto> actual = postService.toBasePostsDto(user);
+        Set<BasePostDto> actual = postService.getBasePostsDtoForUser(user);
         // then
         assertEquals(expected, actual);
     }
@@ -358,7 +358,7 @@ class PostServiceTest {
     @Test
     void toBasePostsDtoFoeUserWithoutPosts() {
         // when
-        Set<BasePostDto> actual = postService.toBasePostsDto(User.builder().build());
+        Set<BasePostDto> actual = postService.getBasePostsDtoForUser(User.builder().build());
         // then
         assertEquals(Collections.emptySet(), actual);
     }

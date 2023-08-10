@@ -39,6 +39,7 @@ public class RegistrationService {
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .birthday(dto.getBirthday())
                 .images(dto.getAvatar() == null ? null : List.of(imgService.createAvatar(dto.getAvatar())))
+                .timezone(dto.getTimezone())
                 .build();
         if (user.getImages() != null) {
             user.getImages().forEach(img -> img.setUser(user));

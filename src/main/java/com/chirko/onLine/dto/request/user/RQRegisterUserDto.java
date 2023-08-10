@@ -28,4 +28,5 @@ public class RQRegisterUserDto {
     private String matchingPassword;
     private LocalDate birthday;
     private MultipartFile avatar;
+    private String timezone;
 }

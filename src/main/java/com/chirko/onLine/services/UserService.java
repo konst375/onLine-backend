@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -141,5 +142,19 @@ public class UserService {
 
     public Set<BaseUserDto> toBaseUsersDto(Set<User> users) {
         return userMapper.toBaseUsersDto(users);
+    }
+
+    public List<String> getTimezones() {
+        return userRepo.findTimezones().orElseThrow(() -> new OnLineException(
+                "User's timezones not found, maybe cause there are no registered users",
+                ErrorCause.USER_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
+    }
+
+    public List<User> findAllByTimezone(String zone) {
+        return userRepo.findAllByTimezone(zone).orElseThrow(() -> new OnLineException(
+                "Users by timezone not found, timezone: " + zone,
+                ErrorCause.USER_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
     }
 }

@@ -21,9 +21,9 @@ public class ActivityService {
     public Date getStartDateForUser(UUID userId) {
         long startSessionDate = userActivityRepo.findStartSessionDateByUserId(userId)
                 .orElseThrow(() -> new OnLineException(
-                        ErrorCause.INTERNAL_SERVER_ERROR,
+                        "UserActivity not found, userId: " + userId,
+                        ErrorCause.USER_ACTIVITY_NOT_FOUND,
                         HttpStatus.INTERNAL_SERVER_ERROR))
-                .get(0)
                 .getTime();
         return new Date(startSessionDate - THEE_DAYS);
     }

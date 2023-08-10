@@ -39,6 +39,9 @@ public class User extends AbstractEntity implements UserDetails {
 
     private LocalDate birthday;
 
+    @Column(nullable = false)
+    private String timezone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

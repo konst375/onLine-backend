@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ public interface UserActivityRepo extends CrudRepository<UserActivity, UUID> {
             FROM UserActivity ua
             WHERE ua.user.id = :userId
             ORDER BY ua.activityDate
-            LIMIT 3
+            LIMIT 1
             """)
-    Optional<List<Date>> findStartSessionDateByUserId(@Param("userId") UUID userId);
+    Optional<Date> findStartSessionDateByUserId(@Param("userId") UUID userId);
 }

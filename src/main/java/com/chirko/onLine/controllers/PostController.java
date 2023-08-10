@@ -28,7 +28,7 @@ public class PostController {
     }
 
     @PostMapping("/create/{communityId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<CommunityPostDto> createCommunityPost(RQPostDto dto, @PathVariable UUID communityId) {
         CommunityPostDto response = postService.createCommunityPost(communityId, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -27,10 +27,7 @@ public class TagScoresService {
         List<TagScores> tagScoresList = tagScoresRepo.findAllByUserId(user.getId()).orElseThrow(
                 () -> new OnLineException(ErrorCause.TAG_SCORES_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR));
         return tagScoresList.stream()
-                .collect(Collectors.toMap(
-                        TagScores::getTag,
-                        TagScores::getScores,
-                        Integer::sum));
+                .collect(Collectors.toMap(TagScores::getTag, TagScores::getScores, Integer::sum));
     }
 
     public void writeDownThatPostLiked(User user, Post post) {

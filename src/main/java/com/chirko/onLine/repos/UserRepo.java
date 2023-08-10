@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -56,4 +57,12 @@ public interface UserRepo extends CrudRepository<User, UUID> {
             """)
     @EntityGraph(attributePaths = "images")
     Optional<Set<User>> findAllByIdWithImages(@Param("ids") Set<UUID> ids);
+
+    @Query("""
+            SELECT DISTINCT u.timezone
+            FROM User u
+            """)
+    Optional<List<String>> findTimezones();
+
+    Optional<List<User>> findAllByTimezone(String zone);
 }

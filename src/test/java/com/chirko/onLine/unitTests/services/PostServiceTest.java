@@ -1,7 +1,7 @@
 package com.chirko.onLine.unitTests.services;
 
 import com.chirko.onLine.dto.mappers.PostMapperImpl;
-import com.chirko.onLine.dto.request.RQPostDto;
+import com.chirko.onLine.dto.request.PostRequestDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
@@ -13,7 +13,7 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.entities.enums.Owner;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.PostRepo;
+import com.chirko.onLine.repos.postgres.PostRepo;
 import com.chirko.onLine.services.CommunityService;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.PostService;
@@ -63,12 +63,12 @@ class PostServiceTest {
                 .surname("surname")
                 .build();
 
-        RQPostDto rqPostDto = new RQPostDto("Some text", null);
+        PostRequestDto postRequestDto = new PostRequestDto("Some text", null);
 
         UserPostDto expectedUserPostDto = new UserPostDto(
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 new BasePostDto(null,
-                        rqPostDto.getText(),
+                        postRequestDto.getText(),
                         Collections.emptyList(),
                         Collections.emptySet(),
                         null,
@@ -83,7 +83,7 @@ class PostServiceTest {
         when(tagService.createTags(any(String.class))).thenReturn(Collections.emptySet());
         when(postRepo.save(any(Post.class))).then(AdditionalAnswers.returnsFirstArg());
         // when
-        UserPostDto actualUserPostDto = postService.createUserPost(user, rqPostDto);
+        UserPostDto actualUserPostDto = postService.createUserPost(user, postRequestDto);
         // then
         assertEquals(expectedUserPostDto, actualUserPostDto);
     }
@@ -98,12 +98,12 @@ class PostServiceTest {
                 .images(Collections.emptyList())
                 .build();
 
-        RQPostDto rqPostDto = new RQPostDto("Some text", null);
+        PostRequestDto postRequestDto = new PostRequestDto("Some text", null);
 
         UserPostDto expectedDto = new UserPostDto(
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 new BasePostDto(null,
-                        rqPostDto.getText(),
+                        postRequestDto.getText(),
                         Collections.emptyList(),
                         Collections.emptySet(),
                         null,
@@ -118,7 +118,7 @@ class PostServiceTest {
         when(tagService.createTags(any(String.class))).thenReturn(Collections.emptySet());
         when(postRepo.save(any(Post.class))).then(AdditionalAnswers.returnsFirstArg());
         // when
-        UserPostDto actualDto = postService.createUserPost(user, rqPostDto);
+        UserPostDto actualDto = postService.createUserPost(user, postRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -132,13 +132,13 @@ class PostServiceTest {
                 .subject("subject")
                 .build();
 
-        RQPostDto rqPostDto = new RQPostDto("Some text", Collections.emptyList());
+        PostRequestDto postRequestDto = new PostRequestDto("Some text", Collections.emptyList());
 
         CommunityPostDto expectedDto = new CommunityPostDto(
                 new BaseCommunityDto(community.getId().toString(), community.getName(), community.getSubject(), null, null),
                 new BasePostDto(
                         null,
-                        rqPostDto.getText(),
+                        postRequestDto.getText(),
                         Collections.emptyList(),
                         Collections.emptySet(),
                         null,
@@ -153,7 +153,7 @@ class PostServiceTest {
         when(tagService.createTags(any(String.class))).thenReturn(Collections.emptySet());
         when(postRepo.save(any(Post.class))).then(AdditionalAnswers.returnsFirstArg());
         // when
-        CommunityPostDto actualDto = postService.createCommunityPost(community.getId(), rqPostDto);
+        CommunityPostDto actualDto = postService.createCommunityPost(community.getId(), postRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -374,7 +374,7 @@ class PostServiceTest {
                 .images(Collections.emptyList())
                 .comments(Collections.emptySet())
                 .build();
-        RQPostDto dto = new RQPostDto("updated", Collections.emptyList());
+        PostRequestDto dto = new PostRequestDto("updated", Collections.emptyList());
 
         BasePostDto expected = new BasePostDto(
                 post.getId().toString(),

@@ -1,6 +1,6 @@
 package com.chirko.onLine.controllers;
 
-import com.chirko.onLine.dto.request.RQRegisterCommunityDto;
+import com.chirko.onLine.dto.request.RegisterCommunityRequestDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
@@ -25,10 +25,10 @@ public class CommunityController {
     private final UserService userService;
 
     @PostMapping("/create")
-    public ResponseEntity<BaseCommunityDto> createCommunity(RQRegisterCommunityDto dto,
+    public ResponseEntity<BaseCommunityDto> createCommunity(RegisterCommunityRequestDto dto,
                                                             @AuthenticationPrincipal User user) {
         BaseCommunityDto response = communityService.createCommunity(user, dto);
-        userService.updateRoleToAdmin(user);
+        userService.giveAdmin(user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

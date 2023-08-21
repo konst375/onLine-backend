@@ -6,7 +6,7 @@ CREATE TABLE member
     email         TEXT      NOT NULL UNIQUE,
     password      TEXT      NOT NULL,
     birthday      DATE,
-    role          TEXT      NOT NULL,
+    roles         TEXT[]    NOT NULL,
     created_date  TIMESTAMP NOT NULL,
     modified_date TIMESTAMP NOT NULL
 );

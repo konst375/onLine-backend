@@ -7,7 +7,7 @@ import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.UserRepo;
+import com.chirko.onLine.repos.postgres.UserRepo;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.UserService;
 import org.junit.jupiter.api.Test;
@@ -275,7 +275,7 @@ class UserServiceTest {
         //given
         User user = User.builder().id(UUID.randomUUID()).build();
         // when
-        userService.updateRoleToAdmin(user);
+        userService.giveAdmin(user);
         // then
         verify(userRepo, times(1)).save(user);
     }

@@ -1,13 +1,12 @@
 package com.chirko.onLine.services;
 
-import com.chirko.onLine.dto.request.user.RQRegisterUserDto;
-import com.chirko.onLine.dto.response.AuthenticationResponseDto;
+import com.chirko.onLine.dto.request.user.RegisterUserRequestDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.events.OnResendingConfirmationLinkEvent;
 import com.chirko.onLine.events.OnSuccessfulRegistrationEvent;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.UserRepo;
+import com.chirko.onLine.repos.postgres.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -21,13 +20,12 @@ import java.util.List;
 @AllArgsConstructor
 public class RegistrationService {
     private final OtpService otpService;
-    private final AccessTokenService accessTokenService;
     private final ImgService imgService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
 
-    public void register(RQRegisterUserDto dto) {
+    public void register(RegisterUserRequestDto dto) {
         if (userRepo.existsByEmail(dto.getEmail())) {
             throw new OnLineException("User with this email already exist, email: " + dto.getEmail(),
                     ErrorCause.USER_ALREADY_EXIST, HttpStatus.CONFLICT);
@@ -56,12 +54,11 @@ public class RegistrationService {
     }
 
     @Transactional
-    public AuthenticationResponseDto confirmRegistration(String token) {
+    public void confirmRegistration(String token) {
         otpService.validateToken(token);
         User user = extractUserFromToken(token);
         user.setEnabled(true);
-        otpService.deleteCommonTokenForUser(user);
-        return new AuthenticationResponseDto(accessTokenService.generateAccessToken(user));
+        otpService.deleteOtpForUser(user);
     }
 
     private User extractUserFromToken(String token) {

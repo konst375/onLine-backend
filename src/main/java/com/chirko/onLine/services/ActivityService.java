@@ -4,7 +4,7 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.entities.UserActivity;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.UserActivityRepo;
+import com.chirko.onLine.repos.postgres.UserActivityRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

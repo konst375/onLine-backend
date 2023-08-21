@@ -1,7 +1,7 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.mappers.CommentMapper;
-import com.chirko.onLine.dto.request.RQCommentDto;
+import com.chirko.onLine.dto.request.CommentRequestDto;
 import com.chirko.onLine.dto.response.CommentDto;
 import com.chirko.onLine.entities.Comment;
 import com.chirko.onLine.entities.Img;
@@ -9,7 +9,7 @@ import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.CommentRepo;
+import com.chirko.onLine.repos.postgres.CommentRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class CommentService {
         return commentMapper.toDto(comment);
     }
 
-    public CommentDto addPostComment(UUID postId, User user, RQCommentDto dto) {
+    public CommentDto addPostComment(UUID postId, User user, CommentRequestDto dto) {
         Comment comment = buildComment(user, dto);
         Post post = postService.getById(postId);
         comment.setPost(post);
@@ -46,7 +46,7 @@ public class CommentService {
         return commentMapper.toDto(savedComment);
     }
 
-    public CommentDto addImgComment(UUID imgId, User user, RQCommentDto dto) {
+    public CommentDto addImgComment(UUID imgId, User user, CommentRequestDto dto) {
         Comment comment = buildComment(user, dto);
         comment.setImg(imgService.getById(imgId));
         Comment savedComment = commentRepo.save(comment);
@@ -71,7 +71,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto updateComment(UUID commentId, User user, RQCommentDto dto) {
+    public CommentDto updateComment(UUID commentId, User user, CommentRequestDto dto) {
         Comment comment = getByIdWithLikes(commentId);
         checkUserAccess(comment, user);
         comment.setText(dto.getText());
@@ -113,7 +113,7 @@ public class CommentService {
                 HttpStatus.NOT_FOUND));
     }
 
-    private Comment buildComment(User user, RQCommentDto dto) {
+    private Comment buildComment(User user, CommentRequestDto dto) {
         return Comment.builder()
                 .user(user)
                 .text(dto.getText())

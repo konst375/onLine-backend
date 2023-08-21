@@ -1,14 +1,14 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.mappers.PostMapper;
-import com.chirko.onLine.dto.request.RQPostDto;
+import com.chirko.onLine.dto.request.PostRequestDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.post.CommunityPostDto;
 import com.chirko.onLine.dto.response.post.UserPostDto;
 import com.chirko.onLine.entities.*;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.PostRepo;
+import com.chirko.onLine.repos.postgres.PostRepo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final PostRepo postRepo;
 
-    public UserPostDto createUserPost(User user, RQPostDto dto) {
+    public UserPostDto createUserPost(User user, PostRequestDto dto) {
         Post post = buildPost(dto);
         if (post.getImages() != null) {
             post.getImages().forEach(img -> img.setPost(post));
@@ -37,7 +37,7 @@ public class PostService {
         return postMapper.toUserPostDto(postRepo.save(post));
     }
 
-    public CommunityPostDto createCommunityPost(UUID communityId, RQPostDto dto) {
+    public CommunityPostDto createCommunityPost(UUID communityId, PostRequestDto dto) {
         Post post = buildPost(dto);
         if (post.getImages() != null) {
             post.getImages().forEach(img -> img.setPost(post));
@@ -99,7 +99,7 @@ public class PostService {
     }
 
     @Transactional
-    public BasePostDto updatePost(UUID postId, User user, RQPostDto dto) {
+    public BasePostDto updatePost(UUID postId, User user, PostRequestDto dto) {
         Post post = findPostWithAllDependencies(postId);
         checkUserAccess(user, post);
         post.setText(dto.getText());
@@ -119,7 +119,7 @@ public class PostService {
         return postMapper.toBasePostDto(post);
     }
 
-    private Post buildPost(RQPostDto dto) {
+    private Post buildPost(PostRequestDto dto) {
         return Post.builder()
                 .text(dto.getText())
                 .tags(tagService.createTags(dto.getText()))

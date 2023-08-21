@@ -10,7 +10,7 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.entities.enums.Role;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.UserRepo;
+import com.chirko.onLine.repos.postgres.UserRepo;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -31,6 +31,13 @@ public class UserService {
     private final PostService postService;
     private final UserMapper userMapper;
     private final UserRepo userRepo;
+
+    public User getByEmail(String email) {
+        return userRepo.findByEmail(email).orElseThrow(() -> new OnLineException(
+                "User not found, email: " + email,
+                ErrorCause.USER_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
+    }
 
     public UserPageDto updateAvatar(UUID userId, @NonNull MultipartFile avatar) {
         User user = userRepo.findByIdWithImages(userId)
@@ -81,8 +88,8 @@ public class UserService {
         userRepo.delete(user);
     }
 
-    public void updateRoleToAdmin(User user) {
-        user.setRole(Role.ADMIN);
+    public void giveAdmin(User user) {
+        user.getRoles().add(Role.ADMIN);
         userRepo.save(user);
     }
 

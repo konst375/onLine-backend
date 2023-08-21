@@ -1,13 +1,12 @@
 package com.chirko.onLine.services;
 
-import com.chirko.onLine.dto.request.user.RQResetUserPasswordDto;
-import com.chirko.onLine.dto.response.AuthenticationResponseDto;
+import com.chirko.onLine.dto.request.user.ResetUserPasswordRequestDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.events.OnPasswordResetRequestEvent;
 import com.chirko.onLine.events.OnSuccessfulPasswordResetEvent;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.UserRepo;
+import com.chirko.onLine.repos.postgres.UserRepo;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,7 +21,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PasswordService {
     private final OtpService otpService;
-    private final AccessTokenService accessTokenService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
@@ -41,14 +39,13 @@ public class PasswordService {
     }
 
     @Transactional
-    public AuthenticationResponseDto saveResetPassword(@Valid RQResetUserPasswordDto dto) {
+    public void saveResetPassword(@Valid ResetUserPasswordRequestDto dto) {
         String token = dto.getToken();
         validateToken(token);
         User user = otpService.extractUser(token);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         applicationEventPublisher.publishEvent(new OnSuccessfulPasswordResetEvent(user));
-        otpService.deleteCommonTokenForUser(user);
-        return new AuthenticationResponseDto(accessTokenService.generateAccessToken(user));
+        otpService.deleteOtpForUser(user);
     }
 
     public void resetPassword(String email) {

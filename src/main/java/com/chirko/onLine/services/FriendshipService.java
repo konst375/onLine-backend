@@ -7,7 +7,7 @@ import com.chirko.onLine.entities.enums.FriendshipStatus;
 import com.chirko.onLine.entities.enums.NotificationType;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.FriendshipRepo;
+import com.chirko.onLine.repos.postgres.FriendshipRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

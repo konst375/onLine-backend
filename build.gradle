@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.2'
+    id 'org.springframework.boot' version '3.1.2'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.1.2'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.6.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.6.0'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'

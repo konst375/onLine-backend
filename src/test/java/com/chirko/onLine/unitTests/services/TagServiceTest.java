@@ -1,7 +1,7 @@
 package com.chirko.onLine.unitTests.services;
 
 import com.chirko.onLine.entities.Tag;
-import com.chirko.onLine.repos.TagRepo;
+import com.chirko.onLine.repos.postgres.TagRepo;
 import com.chirko.onLine.services.TagService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

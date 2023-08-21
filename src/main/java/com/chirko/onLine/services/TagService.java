@@ -1,7 +1,7 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.entities.Tag;
-import com.chirko.onLine.repos.TagRepo;
+import com.chirko.onLine.repos.postgres.TagRepo;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

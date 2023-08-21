@@ -2,7 +2,7 @@ package com.chirko.onLine.unitTests.services;
 
 import com.chirko.onLine.dto.mappers.CommentMapperImpl;
 import com.chirko.onLine.dto.mappers.UserMapperImpl;
-import com.chirko.onLine.dto.request.RQCommentDto;
+import com.chirko.onLine.dto.request.CommentRequestDto;
 import com.chirko.onLine.dto.response.CommentDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.entities.Comment;
@@ -11,7 +11,7 @@ import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.CommentRepo;
+import com.chirko.onLine.repos.postgres.CommentRepo;
 import com.chirko.onLine.services.CommentService;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.PostService;
@@ -82,7 +82,7 @@ class CommentServiceTest {
 
         Post post = Post.builder().id(UUID.randomUUID()).build();
 
-        RQCommentDto rqCommentDto = new RQCommentDto("some text for comment");
+        CommentRequestDto commentRequestDto = new CommentRequestDto("some text for comment");
 
         when(postService.getById(post.getId())).thenReturn(post);
         when(commentRepo.save(any(Comment.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -90,14 +90,14 @@ class CommentServiceTest {
 
         CommentDto expectedDto = new CommentDto(
                 null,
-                rqCommentDto.getText(),
+                commentRequestDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
                 null,
                 0
         );
         // when
-        CommentDto actualDto = commentService.addPostComment(post.getId(), user, rqCommentDto);
+        CommentDto actualDto = commentService.addPostComment(post.getId(), user, commentRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -105,8 +105,8 @@ class CommentServiceTest {
     @Test
     void ifAddPostCommentAndUserNotFound() {
         // given
-        RQCommentDto rqCommentDto = new RQCommentDto();
-        rqCommentDto.setText("some text for comment");
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
+        commentRequestDto.setText("some text for comment");
 
         when(commentRepo.save(any(Comment.class))).then(AdditionalAnswers.returnsFirstArg());
         when(commentRepo.findUserImages(any(Comment.class))).thenReturn(Optional.empty());
@@ -115,7 +115,7 @@ class CommentServiceTest {
         OnLineException thrown = assertThrows(OnLineException.class, () -> commentService.addPostComment(
                 UUID.randomUUID(),
                 User.builder().build(),
-                rqCommentDto));
+                commentRequestDto));
         assertEquals(ErrorCause.USER_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -127,8 +127,8 @@ class CommentServiceTest {
 
         Img img = Img.builder().id(UUID.randomUUID()).build();
 
-        RQCommentDto rqCommentDto = new RQCommentDto();
-        rqCommentDto.setText("some text for comment");
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
+        commentRequestDto.setText("some text for comment");
 
         when(imgService.getById(img.getId())).thenReturn(img);
         when(commentRepo.save(any(Comment.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -136,14 +136,14 @@ class CommentServiceTest {
 
         CommentDto expectedDto = new CommentDto(
                 null,
-                rqCommentDto.getText(),
+                commentRequestDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
                 null,
                 0
         );
         // when
-        CommentDto actualDto = commentService.addImgComment(img.getId(), user, rqCommentDto);
+        CommentDto actualDto = commentService.addImgComment(img.getId(), user, commentRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -151,8 +151,8 @@ class CommentServiceTest {
     @Test
     void ifAddImgCommentAndUserNotFound() {
         // given
-        RQCommentDto rqCommentDto = new RQCommentDto();
-        rqCommentDto.setText("some text for comment");
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
+        commentRequestDto.setText("some text for comment");
 
         when(commentRepo.findUserImages(any(Comment.class))).thenReturn(Optional.empty());
         when(commentRepo.save(any(Comment.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -161,7 +161,7 @@ class CommentServiceTest {
         OnLineException thrown = assertThrows(OnLineException.class, () -> commentService.addImgComment(
                 UUID.randomUUID(),
                 User.builder().build(),
-                rqCommentDto));
+                commentRequestDto));
         assertEquals(ErrorCause.USER_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }
@@ -270,20 +270,20 @@ class CommentServiceTest {
         User user = User.builder().id(UUID.randomUUID()).name("name").surname("surname").build();
         Comment comment = Comment.builder().id(UUID.randomUUID()).user(user).likes(Collections.emptySet()).build();
 
-        RQCommentDto rqCommentDto = new RQCommentDto();
-        rqCommentDto.setText("some text for comment");
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
+        commentRequestDto.setText("some text for comment");
 
         when(commentRepo.getByIdWithLikes(comment.getId())).thenReturn(Optional.of(comment));
 
         CommentDto expectedDto = new CommentDto(
                 comment.getId().toString(),
-                rqCommentDto.getText(),
+                commentRequestDto.getText(),
                 new BaseUserDto(user.getId().toString(), user.getName(), user.getSurname(), null),
                 null,
                 null,
                 0);
         // when
-        CommentDto actualDto = commentService.updateComment(comment.getId(), user, rqCommentDto);
+        CommentDto actualDto = commentService.updateComment(comment.getId(), user, commentRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -298,7 +298,7 @@ class CommentServiceTest {
         OnLineException thrown = assertThrows(OnLineException.class, () -> commentService.updateComment(
                 UUID.randomUUID(),
                 User.builder().id(UUID.randomUUID()).build(),
-                new RQCommentDto()));
+                new CommentRequestDto()));
         assertEquals(ErrorCause.ACCESS_DENIED, thrown.getErrorCause());
         assertEquals(HttpStatus.FORBIDDEN, thrown.getHttpStatus());
     }
@@ -306,7 +306,7 @@ class CommentServiceTest {
     @Test
     void ifUpdateCommentAndCommentNotFound() {
         OnLineException thrown = assertThrows(OnLineException.class,
-                () -> commentService.updateComment(UUID.randomUUID(), User.builder().build(), new RQCommentDto()));
+                () -> commentService.updateComment(UUID.randomUUID(), User.builder().build(), new CommentRequestDto()));
         assertEquals(ErrorCause.COMMENT_NOT_FOUND, thrown.getErrorCause());
         assertEquals(HttpStatus.NOT_FOUND, thrown.getHttpStatus());
     }

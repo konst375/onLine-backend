@@ -3,7 +3,7 @@ package com.chirko.onLine.services;
 import com.chirko.onLine.dto.mappers.CommunityMapper;
 import com.chirko.onLine.dto.mappers.PostMapper;
 import com.chirko.onLine.dto.mappers.UserMapper;
-import com.chirko.onLine.dto.request.RQRegisterCommunityDto;
+import com.chirko.onLine.dto.request.RegisterCommunityRequestDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
 import com.chirko.onLine.dto.response.post.BasePostDto;
@@ -14,7 +14,7 @@ import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.CommunityRepo;
+import com.chirko.onLine.repos.postgres.CommunityRepo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
@@ -38,7 +38,7 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
     private final CommunityRepo communityRepo;
 
-    public BaseCommunityDto createCommunity(User user, RQRegisterCommunityDto dto) {
+    public BaseCommunityDto createCommunity(User user, RegisterCommunityRequestDto dto) {
         Community community = Community.builder()
                 .name(dto.getName())
                 .subject(dto.getSubject())

@@ -4,7 +4,7 @@ import com.chirko.onLine.entities.Otp;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.OtpRepo;
+import com.chirko.onLine.repos.postgres.OtpRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class OtpService {
     }
 
     String generateNewCommonToken(User user) {
-        deleteCommonTokenForUser(user);
+        deleteOtpForUser(user);
         final String token = generateCommonToken();
         buildCommonToken(user, token);
         return token;
@@ -44,7 +44,7 @@ public class OtpService {
                 .getUser();
     }
 
-    void deleteCommonTokenForUser(User user) {
+    void deleteOtpForUser(User user) {
         Otp otp = otpRepo.findByUser(user)
                 .orElseThrow(() -> new OnLineException(ErrorCause.COMMON_TOKEN_NOT_FOUND, HttpStatus.NOT_FOUND));
         otpRepo.delete(otp);

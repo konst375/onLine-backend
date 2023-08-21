@@ -9,7 +9,7 @@ import com.chirko.onLine.entities.Like;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.ImgRepo;
+import com.chirko.onLine.repos.postgres.ImgRepo;
 import com.chirko.onLine.services.ImgService;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;

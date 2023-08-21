@@ -6,7 +6,7 @@ import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.entities.*;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.LikeRepo;
+import com.chirko.onLine.repos.postgres.LikeRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

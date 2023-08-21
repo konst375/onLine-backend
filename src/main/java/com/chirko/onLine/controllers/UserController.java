@@ -1,6 +1,6 @@
 package com.chirko.onLine.controllers;
 
-import com.chirko.onLine.dto.request.RQViewedPostsDto;
+import com.chirko.onLine.dto.request.ViewedPostsRequestDto;
 import com.chirko.onLine.dto.response.user.UserPageDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.services.UserService;
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/mark-viewed-posts")
-    public ResponseEntity<String> markPostsViewed(@ModelAttribute RQViewedPostsDto dto,
+    public ResponseEntity<String> markPostsViewed(@ModelAttribute ViewedPostsRequestDto dto,
                                                   @AuthenticationPrincipal User user) {
         userService.markPostsViewed(user.getId(), dto.getViewedPostsIds());
         return ResponseEntity.ok("Successful marked");

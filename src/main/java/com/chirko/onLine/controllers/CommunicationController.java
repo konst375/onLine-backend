@@ -1,7 +1,7 @@
 package com.chirko.onLine.controllers;
 
-import com.chirko.onLine.dto.request.communication.RQChatDto;
-import com.chirko.onLine.dto.request.communication.RQMessageDto;
+import com.chirko.onLine.dto.request.communication.ChatRequestDto;
+import com.chirko.onLine.dto.request.communication.MessageRequestDto;
 import com.chirko.onLine.dto.response.communication.ChatDto;
 import com.chirko.onLine.entities.Chat;
 import com.chirko.onLine.entities.Message;
@@ -26,25 +26,25 @@ public class CommunicationController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<ChatDto> createMessage(@RequestBody RQMessageDto rqMessageDto,
+    public ResponseEntity<ChatDto> createMessage(@RequestBody MessageRequestDto messageRequestDto,
                                                  @AuthenticationPrincipal User user) {
-        Message message = messageService.createMessage(rqMessageDto, user.getId());
+        Message message = messageService.createMessage(messageRequestDto, user.getId());
         ChatDto response = chatService.getDtoByIdWithAllDependencies(message.getChat().getId(), user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/share/{postId}")
     public ResponseEntity<ChatDto> sharePost(@PathVariable UUID postId,
-                                             @RequestBody RQMessageDto rqMessageDto,
+                                             @RequestBody MessageRequestDto messageRequestDto,
                                              @AuthenticationPrincipal User user) {
-        Message message = messageService.sharePost(postId, rqMessageDto, user.getId());
+        Message message = messageService.sharePost(postId, messageRequestDto, user.getId());
         ChatDto response = chatService.getDtoByIdWithAllDependencies(message.getChat().getId(), user);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/create-chat")
-    public ResponseEntity<ChatDto> createChat(@ModelAttribute RQChatDto rqChatDto, @AuthenticationPrincipal User user) {
-        ChatDto response = chatService.createChat(rqChatDto, user);
+    public ResponseEntity<ChatDto> createChat(@ModelAttribute ChatRequestDto chatRequestDto, @AuthenticationPrincipal User user) {
+        ChatDto response = chatService.createChat(chatRequestDto, user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -62,16 +62,16 @@ public class CommunicationController {
 
     @PutMapping("/update-message/{messageId}")
     public ResponseEntity<ChatDto> editMessage(@PathVariable UUID messageId,
-                                               @RequestBody RQMessageDto rqMessageDto,
+                                               @RequestBody MessageRequestDto messageRequestDto,
                                                @AuthenticationPrincipal User user) {
-        Message message = messageService.editMessage(messageId, rqMessageDto, user);
+        Message message = messageService.editMessage(messageId, messageRequestDto, user);
         ChatDto response = chatService.getDtoByIdWithAllDependencies(message.getChat().getId(), user);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update-chat/{chatId}")
     public ResponseEntity<ChatDto> editChat(@PathVariable UUID chatId,
-                                            @ModelAttribute RQChatDto rqMessageDto,
+                                            @ModelAttribute ChatRequestDto rqMessageDto,
                                             @AuthenticationPrincipal User user) {
         ChatDto response = chatService.editChat(chatId, rqMessageDto, user);
         return ResponseEntity.ok(response);

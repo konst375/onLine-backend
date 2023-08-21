@@ -1,13 +1,13 @@
 package com.chirko.onLine.services;
 
-import com.chirko.onLine.dto.request.communication.RQMessageDto;
+import com.chirko.onLine.dto.request.communication.MessageRequestDto;
 import com.chirko.onLine.entities.Chat;
 import com.chirko.onLine.entities.Message;
 import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.MessageRepo;
+import com.chirko.onLine.repos.postgres.MessageRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,14 @@ public class MessageService {
     private final ImgService imgService;
     private final TagScoresService tagScoresService;
 
-    public Message createMessage(RQMessageDto rqMessageDto, UUID userId) {
+    public Message createMessage(MessageRequestDto messageRequestDto, UUID userId) {
         User user = userService.findByIdWithImages(userId);
-        Message message = buidMessage(rqMessageDto, user);
+        Message message = buidMessage(messageRequestDto, user);
         return messageRepo.save(message);
     }
 
     @Transactional
-    public Message editMessage(UUID messageId, RQMessageDto rqMessageDto, User user) {
+    public Message editMessage(UUID messageId, MessageRequestDto messageRequestDto, User user) {
         Message message = messageRepo.findById(messageId).orElseThrow(() -> new OnLineException(
                 ErrorCause.MESSAGES_NOT_FOUND,
                 HttpStatus.NOT_FOUND));
@@ -42,26 +42,26 @@ public class MessageService {
                     ErrorCause.ACCESS_DENIED,
                     HttpStatus.FORBIDDEN);
         }
-        message.setText(rqMessageDto.getText());
+        message.setText(messageRequestDto.getText());
         message.getSender().setImages(imgService.findUserImages(user));
         return message;
     }
 
-    public Message sharePost(UUID postId, RQMessageDto rqMessageDto, UUID userId) {
+    public Message sharePost(UUID postId, MessageRequestDto messageRequestDto, UUID userId) {
         Post post = postService.findPostWithAllDependencies(postId);
         User user = userService.findByIdWithImages(userId);
-        Message message = buidMessage(rqMessageDto, user);
+        Message message = buidMessage(messageRequestDto, user);
         tagScoresService.writeDownThatPostShared(user, post);
         return message;
     }
 
-    private Message buidMessage(RQMessageDto rqMessageDto, User user) {
+    private Message buidMessage(MessageRequestDto messageRequestDto, User user) {
         return Message.builder()
                 .sender(user)
-                .text(rqMessageDto.getText())
-                .chat(rqMessageDto.getChat() == null
-                        ? chatService.createPersonalChat(user, userService.findById(rqMessageDto.getRecipient()))
-                        : chatService.findByIdWithAllDependenciesAndCheckUserAccess(rqMessageDto.getChat(), user))
+                .text(messageRequestDto.getText())
+                .chat(messageRequestDto.getChat() == null
+                        ? chatService.createPersonalChat(user, userService.findById(messageRequestDto.getRecipient()))
+                        : chatService.findByIdWithAllDependenciesAndCheckUserAccess(messageRequestDto.getChat(), user))
                 .build();
     }
 

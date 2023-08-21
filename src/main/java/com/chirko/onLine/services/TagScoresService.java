@@ -7,7 +7,7 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.entities.enums.InterestPoints;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.TagScoresRepo;
+import com.chirko.onLine.repos.postgres.TagScoresRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

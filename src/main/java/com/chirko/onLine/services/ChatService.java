@@ -1,13 +1,13 @@
 package com.chirko.onLine.services;
 
 import com.chirko.onLine.dto.mappers.ChatMapper;
-import com.chirko.onLine.dto.request.communication.RQChatDto;
+import com.chirko.onLine.dto.request.communication.ChatRequestDto;
 import com.chirko.onLine.dto.response.communication.ChatDto;
 import com.chirko.onLine.entities.Chat;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.ChatRepo;
+import com.chirko.onLine.repos.postgres.ChatRepo;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class ChatService {
                         .build());
     }
 
-    public ChatDto createChat(RQChatDto dto, User user) {
+    public ChatDto createChat(ChatRequestDto dto, User user) {
         Set<User> participants = userService.findAllByIdWithImages(dto.getParticipants());
         Chat chat = Chat.builder()
                 .name(dto.getName() == null
@@ -84,7 +84,7 @@ public class ChatService {
         return findAllByUserId(userId);
     }
 
-    public ChatDto editChat(UUID chatId, RQChatDto rqMessageDto, User user) {
+    public ChatDto editChat(UUID chatId, ChatRequestDto rqMessageDto, User user) {
         Chat chat = chatRepo.findByIdWithAllDependencies(chatId).orElseThrow(() -> new OnLineException(
                 "Chat not found, chatId: " + chatId,
                 ErrorCause.CHAT_NOT_FOUND,

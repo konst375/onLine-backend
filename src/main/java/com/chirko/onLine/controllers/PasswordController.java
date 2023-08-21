@@ -1,9 +1,8 @@
 package com.chirko.onLine.controllers;
 
-import com.chirko.onLine.dto.request.RQOldPasswordDto;
-import com.chirko.onLine.dto.request.user.RQResetUserPasswordDto;
-import com.chirko.onLine.dto.request.user.RQUpdateUserPasswordDto;
-import com.chirko.onLine.dto.response.AuthenticationResponseDto;
+import com.chirko.onLine.dto.request.OldPasswordRequestDto;
+import com.chirko.onLine.dto.request.user.ResetUserPasswordRequestDto;
+import com.chirko.onLine.dto.request.user.UpdateUserPasswordRequestDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
@@ -21,16 +20,16 @@ import org.springframework.web.bind.annotation.*;
 public class PasswordController {
     private final PasswordService passwordService;
 
-    @GetMapping("/reset-form")
+    @GetMapping("/reset/form")
     public ResponseEntity<String> getResetPasswordForm(@RequestParam("token") String token) {
         passwordService.validateToken(token);
         return ResponseEntity.ok("Fill reset password form");
     }
 
     @PostMapping("/reset/save")
-    public ResponseEntity<AuthenticationResponseDto> saveResetPassword(@RequestBody @Valid RQResetUserPasswordDto dto) {
-        AuthenticationResponseDto response = passwordService.saveResetPassword(dto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> saveResetPassword(@RequestBody @Valid ResetUserPasswordRequestDto dto) {
+        passwordService.saveResetPassword(dto);
+        return ResponseEntity.ok("Password successful reset");
     }
 
     @PostMapping("/reset")
@@ -39,8 +38,8 @@ public class PasswordController {
         return ResponseEntity.ok("Follow the link sent to the email to reset your password");
     }
 
-    @PostMapping("/update-form")
-    public ResponseEntity<String> getUpdatePasswordForm(@RequestBody RQOldPasswordDto dto,
+    @PostMapping("/update/form")
+    public ResponseEntity<String> getUpdatePasswordForm(@RequestBody OldPasswordRequestDto dto,
                                                         @AuthenticationPrincipal User user) {
         if (!passwordService.isOldPasswordValid(user, dto.getOldPassword())) {
             throw new OnLineException("The old password you entered is invalid",
@@ -50,7 +49,7 @@ public class PasswordController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<String> updatePassword(@RequestBody @Valid RQUpdateUserPasswordDto dto,
+    public ResponseEntity<String> updatePassword(@RequestBody @Valid UpdateUserPasswordRequestDto dto,
                                                  @AuthenticationPrincipal User user) {
         passwordService.updatePassword(user.getId(), dto.getPassword());
         return ResponseEntity.ok("Password successful updated");

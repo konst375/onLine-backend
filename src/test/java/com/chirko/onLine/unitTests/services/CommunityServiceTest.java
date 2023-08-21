@@ -3,7 +3,7 @@ package com.chirko.onLine.unitTests.services;
 import com.chirko.onLine.dto.mappers.CommunityMapperImpl;
 import com.chirko.onLine.dto.mappers.PostMapperImpl;
 import com.chirko.onLine.dto.mappers.UserMapperImpl;
-import com.chirko.onLine.dto.request.RQRegisterCommunityDto;
+import com.chirko.onLine.dto.request.RegisterCommunityRequestDto;
 import com.chirko.onLine.dto.response.TagDto;
 import com.chirko.onLine.dto.response.community.BaseCommunityDto;
 import com.chirko.onLine.dto.response.community.CommunityPageDto;
@@ -14,7 +14,7 @@ import com.chirko.onLine.entities.*;
 import com.chirko.onLine.entities.enums.Owner;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.CommunityRepo;
+import com.chirko.onLine.repos.postgres.CommunityRepo;
 import com.chirko.onLine.services.CommunityService;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.TagService;
@@ -62,8 +62,8 @@ class CommunityServiceTest {
         String communityTags = "#Test";
         String tagName = "#Test";
 
-        RQRegisterCommunityDto rqRegisterCommunityDto =
-                new RQRegisterCommunityDto("testCommunity", "testing", null, communityTags);
+        RegisterCommunityRequestDto registerCommunityRequestDto =
+                new RegisterCommunityRequestDto("testCommunity", "testing", null, communityTags);
         Set<Tag> tags = Set.of(Tag.builder()
                 .tagName(tagName)
                 .build());
@@ -86,7 +86,7 @@ class CommunityServiceTest {
                         null,
                         Set.of(new TagDto(tagName)));
         // when
-        BaseCommunityDto actualDto = communityService.createCommunity(user, rqRegisterCommunityDto);
+        BaseCommunityDto actualDto = communityService.createCommunity(user, registerCommunityRequestDto);
         // then
         assertEquals(expectedDto, actualDto);
     }
@@ -102,7 +102,7 @@ class CommunityServiceTest {
         byte[] expectedImgBytes = requireNonNull(getClass().getClassLoader()
                 .getResourceAsStream("static/defaultAvatar.png")).readAllBytes();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("defaultAvatar.png", expectedImgBytes);
-        RQRegisterCommunityDto rqRegisterCommunityDto = new RQRegisterCommunityDto(
+        RegisterCommunityRequestDto registerCommunityRequestDto = new RegisterCommunityRequestDto(
                 "testCommunity",
                 "testing",
                 mockMultipartFile,
@@ -135,7 +135,7 @@ class CommunityServiceTest {
 
         when(imgService.createAvatar(eq(mockMultipartFile))).thenReturn(avatar);
         // when
-        BaseCommunityDto actualDto = communityService.createCommunity(user, rqRegisterCommunityDto);
+        BaseCommunityDto actualDto = communityService.createCommunity(user, registerCommunityRequestDto);
         // then
         assertEquals(expectedDto.name(), actualDto.name());
         assertEquals(expectedDto.subject(), actualDto.subject());

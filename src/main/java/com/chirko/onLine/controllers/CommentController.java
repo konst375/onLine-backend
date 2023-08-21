@@ -1,6 +1,6 @@
 package com.chirko.onLine.controllers;
 
-import com.chirko.onLine.dto.request.RQCommentDto;
+import com.chirko.onLine.dto.request.CommentRequestDto;
 import com.chirko.onLine.dto.response.CommentDto;
 import com.chirko.onLine.entities.User;
 import com.chirko.onLine.services.CommentService;
@@ -21,7 +21,7 @@ public class CommentController {
 
     @PostMapping("/post/{postId}")
     public ResponseEntity<CommentDto> addPostComment(@PathVariable UUID postId,
-                                                     @RequestBody RQCommentDto dto,
+                                                     @RequestBody CommentRequestDto dto,
                                                      @AuthenticationPrincipal User user) {
         CommentDto response = commentService.addPostComment(postId, user, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -35,7 +35,7 @@ public class CommentController {
 
     @PostMapping("/img/{imgId}")
     public ResponseEntity<CommentDto> addImgComment(@PathVariable UUID imgId,
-                                                    @RequestBody RQCommentDto dto,
+                                                    @RequestBody CommentRequestDto dto,
                                                     @AuthenticationPrincipal User user) {
         CommentDto response = commentService.addImgComment(imgId, user, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -49,7 +49,7 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable UUID commentId,
-                                                    @RequestBody RQCommentDto dto,
+                                                    @RequestBody CommentRequestDto dto,
                                                     @AuthenticationPrincipal User user) {
         CommentDto response = commentService.updateComment(commentId, user, dto);
         return ResponseEntity.ok(response);

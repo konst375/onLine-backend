@@ -10,7 +10,7 @@ import com.chirko.onLine.entities.*;
 import com.chirko.onLine.entities.enums.Owner;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
-import com.chirko.onLine.repos.LikeRepo;
+import com.chirko.onLine.repos.postgres.LikeRepo;
 import com.chirko.onLine.services.CommentService;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.LikeService;

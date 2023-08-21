@@ -10,6 +10,7 @@ import com.chirko.onLine.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,7 @@ public class CommunityController {
     }
 
     @PutMapping("/{communityId}/avatar/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommunityPageDto> updateAvatar(@PathVariable UUID communityId,
                                                          @RequestParam("image") MultipartFile avatar,
                                                          @AuthenticationPrincipal User user) {
@@ -53,6 +55,7 @@ public class CommunityController {
     }
 
     @PutMapping("/{communityId}/cover/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommunityPageDto> updateCover(@PathVariable UUID communityId,
                                                         @RequestParam("image") MultipartFile cover,
                                                         @AuthenticationPrincipal User user) {
@@ -61,6 +64,7 @@ public class CommunityController {
     }
 
     @DeleteMapping("/{communityId}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteCommunity(@PathVariable UUID communityId, @AuthenticationPrincipal User user) {
         communityService.deleteCommunity(communityId, user);
         return ResponseEntity.ok("deleted successful");

@@ -9,25 +9,25 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.redis.RefreshTokenRepo;
-import com.chirko.onLine.services.UserService;
 import io.jsonwebtoken.Claims;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
     private final RefreshTokenRepo refreshTokenRepo;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
     public JwtAuthResponseDto login(@NonNull JwtAuthRequestDto authRequest) {
-        final User user = userService.getByEmail(authRequest.getEmail());
+        final User user = (User) userDetailsService.loadUserByUsername(authRequest.getEmail());
         if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -44,7 +44,7 @@ public class AuthService {
             final String email = claims.getSubject();
             final String saveRefreshToken = getRefreshToken(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.getByEmail(email);
+                final User user = (User) userDetailsService.loadUserByUsername(email);
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 return new JwtAuthResponseDto(accessToken, null);
             }
@@ -58,7 +58,7 @@ public class AuthService {
             final String email = claims.getSubject();
             final String saveRefreshToken = getRefreshToken(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.getByEmail(email);
+                final User user = (User) userDetailsService.loadUserByUsername(email);
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
                 saveRefreshToken(user, newRefreshToken);

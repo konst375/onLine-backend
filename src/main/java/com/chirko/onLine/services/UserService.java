@@ -15,6 +15,9 @@ import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,12 +28,17 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final ActivityService activityService;
     private final ImgService imgService;
     private final PostService postService;
     private final UserMapper userMapper;
     private final UserRepo userRepo;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getByEmail(username);
+    }
 
     public User getByEmail(String email) {
         return userRepo.findByEmail(email).orElseThrow(() -> new OnLineException(

@@ -8,7 +8,9 @@ import com.chirko.onLine.entities.User;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.postgres.UserRepo;
+import com.chirko.onLine.services.ActivityService;
 import com.chirko.onLine.services.ImgService;
+import com.chirko.onLine.services.PostService;
 import com.chirko.onLine.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,8 +44,10 @@ class UserServiceTest {
     private UserService userService;
     @MockBean
     private ImgService imgService;
-//    @MockBean
-//    private PostService postService;
+    @MockBean
+    private ActivityService activityService;
+    @MockBean
+    private PostService postService;
     @MockBean
     private UserRepo userRepo;
 

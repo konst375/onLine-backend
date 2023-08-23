@@ -15,6 +15,7 @@ import com.chirko.onLine.repos.postgres.CommentRepo;
 import com.chirko.onLine.services.CommentService;
 import com.chirko.onLine.services.ImgService;
 import com.chirko.onLine.services.PostService;
+import com.chirko.onLine.services.TagScoresService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
@@ -46,6 +47,8 @@ class CommentServiceTest {
     private PostService postService;
     @MockBean
     private ImgService imgService;
+    @MockBean
+    private TagScoresService tagScoresService;
     @MockBean
     private CommentRepo commentRepo;
 

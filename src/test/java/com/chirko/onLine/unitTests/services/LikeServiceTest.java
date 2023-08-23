@@ -11,10 +11,7 @@ import com.chirko.onLine.entities.enums.Owner;
 import com.chirko.onLine.exceptions.ErrorCause;
 import com.chirko.onLine.exceptions.OnLineException;
 import com.chirko.onLine.repos.postgres.LikeRepo;
-import com.chirko.onLine.services.CommentService;
-import com.chirko.onLine.services.ImgService;
-import com.chirko.onLine.services.LikeService;
-import com.chirko.onLine.services.PostService;
+import com.chirko.onLine.services.*;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +49,8 @@ class LikeServiceTest {
     private PostMapper postMapper;
     @MockBean
     private CommentService commentService;
+    @MockBean
+    private TagScoresService tagScoresService;
     @MockBean
     private ImgService imgService;
     @MockBean

@@ -1,5 +1,6 @@
 package com.chirko.onLine.repos.postgres;
 
+import com.chirko.onLine.entities.Community;
 import com.chirko.onLine.entities.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
@@ -65,4 +66,11 @@ public interface UserRepo extends CrudRepository<User, UUID> {
     Optional<List<String>> findTimezones();
 
     Optional<List<User>> findAllByTimezone(String zone);
+
+    @Query("""
+            SELECT u.communities
+            FROM User u
+            WHERE u.id = :id
+            """)
+    Optional<Set<Community>> findUserCommunities(@Param("id")UUID id);
 }

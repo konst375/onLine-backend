@@ -51,4 +51,12 @@ public interface CommunityRepo extends CrudRepository<Community, UUID> {
             """)
     @EntityGraph(value = "Community-with-posts")
     Optional<Community> findCommunityWithPostsAndTheirImagesAndTags(@Param("id") UUID id);
+
+    @Query("""
+            SELECT c
+            FROM Community c
+            WHERE c.id = :id
+            """)
+    @EntityGraph(value = "Community-with-dependencies", type = EntityGraph.EntityGraphType.LOAD)
+    Set<Community> findAllByIdWithImagesAndTags(@Param("ids") Set<UUID> ids);
 }

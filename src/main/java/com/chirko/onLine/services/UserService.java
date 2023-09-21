@@ -4,6 +4,7 @@ import com.chirko.onLine.dto.mappers.UserMapper;
 import com.chirko.onLine.dto.response.post.BasePostDto;
 import com.chirko.onLine.dto.response.user.BaseUserDto;
 import com.chirko.onLine.dto.response.user.UserPageDto;
+import com.chirko.onLine.entities.Community;
 import com.chirko.onLine.entities.Img;
 import com.chirko.onLine.entities.Post;
 import com.chirko.onLine.entities.User;
@@ -171,5 +172,13 @@ public class UserService implements UserDetailsService {
                 "Users by timezone not found, timezone: " + zone,
                 ErrorCause.USER_NOT_FOUND,
                 HttpStatus.NOT_FOUND));
+    }
+
+    public Set<Community> getUserCommunities(User user) {
+        return userRepo.findUserCommunities(user.getId()).orElseThrow(() -> new OnLineException(
+                "Communities not found",
+                ErrorCause.COMMUNITY_NOT_FOUND,
+                HttpStatus.NOT_FOUND
+        ));
     }
 }

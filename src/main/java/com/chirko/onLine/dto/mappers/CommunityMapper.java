@@ -16,6 +16,7 @@ import java.util.Set;
         imports = {ImgMapper.class, UserMapper.class, TagMapper.class})
 public interface CommunityMapper {
     BaseCommunityDto toBaseDto(Community entity);
+    Set<BaseCommunityDto> communitiesToCommunitiesDto(Set<Community> communities);
 
     @Mapping(target = "numberOfFollowers", expression = "java(entity.getFollowers().size())")
     CommunityWithNumberOfFollowersDto toCommunityWithNumberOfFollowersDto(Community entity);

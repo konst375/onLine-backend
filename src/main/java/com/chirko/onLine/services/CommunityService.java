@@ -27,12 +27,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CommunityService {
     private final ImgService imgService;
     private final TagService tagService;
+    private final UserService userService;
     private final UserMapper userMapper;
     private final PostMapper postMapper;
     private final CommunityMapper communityMapper;
@@ -184,5 +186,13 @@ public class CommunityService {
 
     private void removeDuplicateImages(Community community) {
         community.setImages(Lists.newArrayList(Sets.newLinkedHashSet(community.getImages())));
+    }
+
+    public Set<BaseCommunityDto> getAllCommunities(User user) {
+        Set<Community> userCommunities = userService.getUserCommunities(user);
+        Set<Community> result = communityRepo.findAllByIdWithImagesAndTags(userCommunities.stream()
+                .map(Community::getId)
+                .collect(Collectors.toSet()));
+        return communityMapper.communitiesToCommunitiesDto(result);
     }
 }

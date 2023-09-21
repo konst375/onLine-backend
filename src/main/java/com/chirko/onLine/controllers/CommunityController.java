@@ -25,6 +25,12 @@ public class CommunityController {
     private final CommunityService communityService;
     private final UserService userService;
 
+    @GetMapping
+    public ResponseEntity<Set<BaseCommunityDto>> getCommunities(@AuthenticationPrincipal User user) {
+        Set<BaseCommunityDto> response = communityService.getAllCommunities(user);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<BaseCommunityDto> createCommunity(RegisterCommunityRequestDto dto,
                                                             @AuthenticationPrincipal User user) {

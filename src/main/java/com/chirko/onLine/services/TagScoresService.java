@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +28,11 @@ public class TagScoresService {
         List<TagScores> tagScoresList = tagScoresRepo.findAllByUserId(user.getId()).orElseThrow(
                 () -> new OnLineException(ErrorCause.TAG_SCORES_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR));
         return tagScoresList.stream()
-                .collect(Collectors.toMap(TagScores::getTag, TagScores::getScores, Integer::sum));
+                .collect(Collectors.toMap(
+                        TagScores::getTag,
+                        TagScores::getScores,
+                        Integer::sum,
+                        () -> new HashMap<>((int) Math.ceil(tagScoresList.size() / 0.75))));
     }
 
     public void writeDownThatPostLiked(User user, Post post) {
